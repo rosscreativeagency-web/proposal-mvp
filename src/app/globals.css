@@ -10,21 +10,33 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .b1{left:-80px;top:10vh;width:340px;height:280px;background:#f6b8c8;border-radius:47% 53% 31% 69%/44% 37% 63% 56%}
 .b2{right:-80px;top:45vh;width:380px;height:280px;background:#bdd8d4;border-radius:57% 43% 61% 39%/42% 54% 46% 58%;animation-duration:21s}
 
+.chapter{position:relative;container-type:inline-size;container-name:chapter;padding-block:clamp(1.6rem,3vw,3rem)}
+.chapter::before{content:"";position:absolute;inset:6% 2%;pointer-events:none;border-radius:2.5rem;opacity:.6;filter:blur(2px)}
+.chapter-prelude{--chapter-width:min(1240px,95vw);--chapter-gap:4.6rem;--chapter-rhythm:1.5rem;--chapter-cols:1.2fr 1fr;--chapter-accent:linear-gradient(120deg,#f9e7ec7a,#f9efd77a)}
+.chapter-intro{--chapter-width:min(1120px,92vw);--chapter-gap:3.8rem;--chapter-rhythm:1.15rem;--chapter-cols:1fr 1fr;--chapter-accent:radial-gradient(circle at 22% 30%,#f5bfd67a,transparent 58%)}
+.chapter-strategy{--chapter-width:min(980px,90vw);--chapter-gap:3rem;--chapter-rhythm:1rem;--chapter-cols:1fr 1.25fr;--chapter-accent:radial-gradient(circle at 80% 30%,#b7dcd17d,transparent 60%)}
+.chapter-awareness{--chapter-width:min(1180px,95vw);--chapter-gap:4.2rem;--chapter-rhythm:1.4rem;--chapter-cols:1fr 1fr;--chapter-accent:linear-gradient(130deg,#f4e3be88,#efd8d488)}
+.chapter-positioning{--chapter-width:min(1060px,91vw);--chapter-gap:3.4rem;--chapter-rhythm:1.2rem;--chapter-cols:1.3fr .9fr;--chapter-accent:radial-gradient(circle at 12% 72%,#d9c8f188,transparent 58%)}
+.chapter-advertising{--chapter-width:min(1200px,94vw);--chapter-gap:4.4rem;--chapter-rhythm:1.45rem;--chapter-cols:1fr 1fr;--chapter-accent:radial-gradient(circle at 90% 62%,#b8d9e288,transparent 58%)}
+.chapter-sell{--chapter-width:min(1000px,90vw);--chapter-gap:3.2rem;--chapter-rhythm:1.1rem;--chapter-cols:1.1fr 1fr;--chapter-accent:linear-gradient(130deg,#f8d3bf80,#f6e2ba80)}
+.chapter-closing{--chapter-width:min(940px,88vw);--chapter-gap:2.8rem;--chapter-rhythm:.9rem;--chapter-cols:1fr;--chapter-accent:radial-gradient(circle at 50% 50%,#11111112,transparent 68%)}
+.chapter::before{background:var(--chapter-accent)}
+
 .cover{min-height:96vh;padding:5rem 4vw;display:grid;place-content:center;gap:1rem;text-align:center;position:relative;overflow:hidden}
 .cover h1{font-size:clamp(2.6rem,8vw,7.2rem);line-height:1.06;margin:0}
 .cover h2{font-weight:500;color:#111111bb;max-width:900px;margin:auto}
 .cover p{letter-spacing:.28em;font-size:.78rem;color:#11111188}
 .chapter-tag{margin:auto;border:1px solid #0000001f;padding:.9rem 1.1rem;border-radius:999px;background:#fff7}
 
-.scene{width:min(1220px,94vw);margin:5rem auto;display:grid;grid-template-columns:1.2fr 1fr;gap:1.4rem;align-items:center}
+.scene{width:var(--chapter-width,min(1220px,94vw));margin:var(--chapter-gap,5rem) auto;display:grid;grid-template-columns:var(--chapter-cols,1.2fr 1fr);gap:1.4rem;align-items:center}
 .scene-1,.scene-3,.scene-5{grid-template-columns:1fr 1.2fr}
 .scene-2 .scene-text,.scene-4 .scene-text{background:transparent;border:0;box-shadow:none;padding-inline:0}
-.scene-text{padding:1.5rem;border:1px solid #00000014;border-radius:2rem;background:#fff8;backdrop-filter:blur(7px);box-shadow:0 22px 70px -50px #000}
+.scene-text{padding:clamp(1.1rem,2.4vw,1.7rem);border:1px solid #00000014;border-radius:2rem;background:#fff8;backdrop-filter:blur(7px);box-shadow:0 22px 70px -50px #000}
 .eyebrow{letter-spacing:.2em;font-size:.74rem;color:#1117}
 .scene h3{font-size:clamp(1.9rem,3.6vw,3.3rem);margin:.4rem 0}
 .subtitle{font-size:1.2rem;color:#111a}
-.body{line-height:2;color:#111d}
-.bullet-grid{margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.7rem}
+.body{line-height:calc(1.7 + var(--chapter-rhythm,.9));color:#111d}
+.bullet-grid{margin-top:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:calc(.55rem + (var(--chapter-rhythm,.9) * .15))}
 .bullet{display:flex;gap:.55rem;align-items:flex-start;padding:.7rem .8rem;border-radius:1rem;border:1px solid #00000016;background:#fff7;transition:.25s}
 .bullet:hover{box-shadow:0 14px 30px -24px #000;background:#fff}
 
@@ -36,12 +48,17 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .media-float{width:150px;height:130px;background:#f6bccb;inset-inline-start:-40px;top:-30px}
 .media-mini{width:130px;height:120px;background:#cae0db;inset-inline-end:-30px;bottom:-40px;animation-delay:2.2s}
 
-.divider{min-height:58vh;width:min(1200px,96vw);margin:4rem auto;display:grid;place-content:center;text-align:center;background:#111;color:#fff;border-radius:2.5rem;position:relative;overflow:hidden}
+.divider{min-height:58vh;width:var(--chapter-width,min(1200px,96vw));margin:4rem auto;display:grid;place-content:center;text-align:center;background:#111;color:#fff;border-radius:2.5rem;position:relative;overflow:hidden}
 .divider::before{content:"";position:absolute;inset:12%;border:1px solid #ffffff21;border-radius:2rem}
 .divider span{font-size:3.6rem;color:#ffffff3a;font-weight:800}
 .divider h2{font-size:clamp(2.2rem,6vw,5rem);margin:0}
 .divider p{font-size:1.2rem;color:#fffd}
 
-@media (max-width: 900px){.scene,.scene-1,.scene-3,.scene-5{grid-template-columns:1fr}.cover{min-height:88vh}}
+@container chapter (max-width: 980px){
+  .scene,.scene-1,.scene-3,.scene-5{grid-template-columns:1fr}
+  .chapter{padding-block:1.25rem}
+}
+
+@media (max-width: 900px){.cover{min-height:88vh}}
 @keyframes float{50%{transform:translateY(-14px)}}
 @keyframes blob{50%{transform:translate3d(0,-25px,0) scale(1.04);border-radius:61% 39% 47% 53%/31% 48% 52% 69%}}

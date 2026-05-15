@@ -168,6 +168,19 @@ function CinematicClosingSection({ slide, idx }: { slide: Slide; idx: number }) 
   return <SlideContent slide={slide} idx={idx} sectionClass="section-cinematic-closing" />;
 }
 
+
+function getChapterClass(slide: Slide): string {
+  const id = Number.parseInt(slide.id, 10);
+  if (id <= 12) return "chapter-prelude";
+  if (id <= 25) return "chapter-intro";
+  if (id <= 30) return "chapter-strategy";
+  if (id <= 33) return "chapter-awareness";
+  if (id <= 37) return "chapter-positioning";
+  if (id <= 40) return "chapter-advertising";
+  if (id <= 46) return "chapter-sell";
+  return "chapter-closing";
+}
+
 function renderSlide(slide: Slide, idx: number) {
   if (slide.kind === "divider") return <motion.section key={slide.id} className="divider" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}><span>{slide.id}</span><h2>{slide.title}</h2><p>{slide.subtitle}</p></motion.section>;
   if (slide.kind === "cover") return <section key={slide.id} className="cover mini"><p>{slide.kicker}</p><h1>{slide.title}</h1><h2>{slide.subtitle}</h2><div className="chapter-tag">{slide.placeholder}</div></section>;
@@ -234,7 +247,11 @@ export default function Home() {
         <h2>روایتی سینمایی، تعاملی و زنده از مسیر Strategy تا Sell</h2>
         <motion.button whileHover={{ y: -4, scale: 1.03 }} whileTap={{ scale: 0.97 }} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></motion.button>
       </section>
-      {sections.map((slide, idx) => renderSlide(slide, idx))}
+      {sections.map((slide, idx) => (
+        <section key={`chapter-${slide.id}`} className={`chapter ${getChapterClass(slide)}`}>
+          {renderSlide(slide, idx)}
+        </section>
+      ))}
     </main>
   );
 }
