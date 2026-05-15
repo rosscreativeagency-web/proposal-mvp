@@ -1,8 +1,8 @@
 "use client";
 
 import Lenis from "lenis";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { BlobField } from "@/components/BlobField";
 import { ChapterDivider } from "@/components/ChapterDivider";
 import {
@@ -15,6 +15,7 @@ import {
   Sparkles,
   Target,
   Workflow,
+  Zap,
 } from "lucide-react";
 
 type Slide = {
@@ -93,6 +94,24 @@ const slides: Slide[] = [
 
 const icons = [Layers, Workflow, Compass, Orbit, Target, Gem];
 
+
+type ChapterRailItem = {
+  key: string;
+  label: string;
+  chapterClass: string;
+  icon: typeof Layers;
+};
+
+const chapterRailItems: ChapterRailItem[] = [
+  { key: "chapter-prelude", label: "Prelude", chapterClass: "chapter-prelude", icon: Gem },
+  { key: "chapter-intro", label: "Introduction", chapterClass: "chapter-intro", icon: Compass },
+  { key: "chapter-strategy", label: "Strategy", chapterClass: "chapter-strategy", icon: Workflow },
+  { key: "chapter-awareness", label: "Awareness", chapterClass: "chapter-awareness", icon: Orbit },
+  { key: "chapter-positioning", label: "Positioning", chapterClass: "chapter-positioning", icon: Target },
+  { key: "chapter-advertising", label: "Advertising", chapterClass: "chapter-advertising", icon: Layers },
+  { key: "chapter-sell", label: "Sell", chapterClass: "chapter-sell", icon: Zap },
+  { key: "chapter-closing", label: "Closing", chapterClass: "chapter-closing", icon: Sparkles },
+];
 
 type BudgetMatrixEntry = {
   stage: "Strategy" | "Awareness" | "Positioning" | "Advertising" | "Sell";
@@ -390,11 +409,16 @@ function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; start
 }
 
 export default function Home() {
+  const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { damping: 28, stiffness: 140 });
+  const lenisRef = useRef<Lenis | null>(null);
+  const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [activeChapter, setActiveChapter] = useState<string>(chapterRailItems[0].key);
 
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+    const lenis = new Lenis({ lerp: 0.085, smoothWheel: true, smoothTouch: true });
+    lenisRef.current = lenis;
     let rafId = 0;
     const raf = (time: number) => {
       lenis.raf(time);
@@ -403,15 +427,71 @@ export default function Home() {
     rafId = requestAnimationFrame(raf);
     return () => {
       cancelAnimationFrame(rafId);
+      lenisRef.current = null;
       lenis.destroy();
     };
   }, []);
 
   const sections = useMemo(() => slides, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      if (!visible.length) return;
+      visible.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      const chapterKey = visible[0].target.getAttribute("data-chapter-key");
+      if (chapterKey) setActiveChapter(chapterKey);
+    }, { threshold: [0.25, 0.45, 0.7], rootMargin: "-20% 0px -30% 0px" });
+
+    Object.values(chapterRefs.current).forEach((el) => { if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [sections]);
+
+  const setChapterRef = (key: string, node: HTMLElement | null) => {
+    chapterRefs.current[key] = node;
+  };
+
+  const scrollToChapter = (key: string) => {
+    const target = chapterRefs.current[key];
+    if (!target) return;
+    if (lenisRef.current && !shouldReduceMotion) {
+      lenisRef.current.scrollTo(target, { offset: -24, duration: 1.1 });
+      return;
+    }
+    target.scrollIntoView({ behavior: shouldReduceMotion ? "auto" : "smooth", block: "start" });
+  };
+
   return (
     <main className="proposal-root">
       <motion.div className="progress" style={{ scaleX: progress }} />
+      <aside className="chapter-rail" aria-label="Chapter navigation">
+        {chapterRailItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeChapter === item.key;
+          return (
+            <motion.button
+              key={item.key}
+              type="button"
+              className={`chapter-rail-item ${isActive ? "is-active" : ""}`}
+              onClick={() => scrollToChapter(item.key)}
+              whileHover={shouldReduceMotion ? undefined : { x: -2, scale: 1.02 }}
+              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+            >
+              <motion.span
+                className="chapter-rail-shape"
+                layout
+                animate={isActive ? { borderRadius: "1rem", boxShadow: "0 0 0 1px rgba(216,138,166,.55), 0 0 28px rgba(216,138,166,.3)" } : { borderRadius: "999px", boxShadow: "0 0 0 1px rgba(0,0,0,.1), 0 0 0 rgba(0,0,0,0)" }}
+                transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 270, damping: 24 }}
+              >
+                <motion.span animate={isActive && !shouldReduceMotion ? { y: [0, -1.6, 0] } : { y: 0 }} transition={{ duration: 1.8, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}>
+                  <Icon size={14} />
+                </motion.span>
+              </motion.span>
+              <span>{item.label}</span>
+            </motion.button>
+          );
+        })}
+      </aside>
       <section className="cover">
         <p>ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>SPM Proposal Experience</motion.h1>
@@ -429,10 +509,11 @@ export default function Home() {
         }
         return groups;
       }, [sections]).map((group) => {
-        if (group.chapterClass === 'chapter-intro') return <ProjectBriefChapter key={group.key} group={group} startIdx={group.offset} />;
-        if (group.chapterClass === 'chapter-strategy') return <StrategyMapChapter key={group.key} group={group} startIdx={group.offset} />;
-        if (group.chapterClass === 'chapter-awareness') return <AwarenessOrbitChapter key={group.key} group={group} startIdx={group.offset} />;
-        return <section key={group.key} className={`chapter ${group.chapterClass}`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />{group.slides.map((slide, i) => renderSlide(slide, group.offset + i, group.chapterClass))}</section>;
+        const chapterKey = group.chapterClass;
+        if (group.chapterClass === 'chapter-intro') return <div key={group.key} ref={(node) => setChapterRef(chapterKey, node)} data-chapter-key={chapterKey}><ProjectBriefChapter group={group} startIdx={group.offset} /></div>;
+        if (group.chapterClass === 'chapter-strategy') return <div key={group.key} ref={(node) => setChapterRef(chapterKey, node)} data-chapter-key={chapterKey}><StrategyMapChapter group={group} startIdx={group.offset} /></div>;
+        if (group.chapterClass === 'chapter-awareness') return <div key={group.key} ref={(node) => setChapterRef(chapterKey, node)} data-chapter-key={chapterKey}><AwarenessOrbitChapter group={group} startIdx={group.offset} /></div>;
+        return <section key={group.key} ref={(node) => setChapterRef(chapterKey, node)} data-chapter-key={chapterKey} className={`chapter ${group.chapterClass}`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />{group.slides.map((slide, i) => renderSlide(slide, group.offset + i, group.chapterClass))}</section>;
       })}
     </main>
   );
