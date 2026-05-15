@@ -5,7 +5,7 @@ import "./globals.css";
 const peyda = localFont({
   src: [
     {
-      path: "../../public/fonts/peyda/peyda-Regular.ttf",
+      path: "../../public/fonts/peyda/Peyda-Regular.ttf",
       weight: "400",
       style: "normal",
     },
