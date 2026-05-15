@@ -1,19 +1,129 @@
-export default function Home() {
+"use client";
+
+import Lenis from "lenis";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { useEffect, useMemo, useRef } from "react";
+import { ArrowUpRight, CircleDot, Sparkles } from "lucide-react";
+
+type Slide = {
+  id: string;
+  kind: "cover" | "divider" | "content";
+  kicker?: string;
+  title?: string;
+  subtitle?: string;
+  body?: string[];
+  bullets?: string[];
+  placeholder?: string;
+};
+
+const slides: Slide[] = [
+  { id: "01", kind: "cover", kicker: "SPM", title: "Proposal Mardom Hub", subtitle: "SPM Project · Feb - 2026", placeholder: "تصویر پیشنهادی: کاور سینمایی برند SPM" },
+  { id: "02", kind: "content", kicker: "OurHolding", title: "Mardom Hub", bullets: ["Communication Agency", "Entertainment", "Branding Services", "Media Services", "Marketing Services in: Sport & Wellness / Care & Beauty"], placeholder: "تصویر پیشنهادی: نمای کلی هلدینگ" },
+  { id: "03", kind: "content", kicker: "OurBranches", title: "Mardom Hub", bullets: ["Iran: تهران، نیاوران، خیابان فیضیه، پلاک ۴، زنگ اول", "Iran: تهران، خیابان شریعتی، کوچه سجاد، پلاک ۷۹، واحد ۳", "UAE: Office 2714, Churchill Tower, Business Bay", "Turkey: Maslak Mah. Maslak Meydan Sk... Istanbul"], placeholder: "نقشه پیشنهادی: نقاط جغرافیایی شعب" },
+  { id: "04", kind: "content", kicker: "OurServices", title: "Overview", body: ["تحقیقات برند · طراحی هویت برند · ارتباطات برند · دیجیتال مارکتینگ · برنامه‌ریزی رسانه · فروش آنلاین"], bullets: ["مطالعات بازار و روندها / مخاطب / رقبا", "استراتژی و هویت بصری/کلامی/دیجیتال", "تجربه برند، کمپین، محتوا", "SEO, Social, Google Ads, VOD", "Tech, Decoration, Pet, Sport", "MarketPlace Growth / Store Management"], placeholder: "دیاگرام پیشنهادی: ماتریس خدمات" },
+  { id: "05", kind: "content", title: "تحقیقات برند", body: ["تحقیقات برند نقطه شروع هر حرکت مؤثر برای شناخت بازار، مخاطب و فضای رقابتی است.", "استخراج تصویر دقیق از موقعیت فعلی برند و فرصت‌های رشد."], bullets: ["مطالعه بازار و روندها", "مطالعه مخاطبان", "تحلیل رقبا", "مطالعه سازمان", "ارزیابی فروشگاه‌های خرده‌فروشی"], placeholder: "آیکون پیشنهادی: تحقیقات بازار" },
+  { id: "06", kind: "content", title: "طراحی هویت برند", body: ["طراحی هویت برند بر اساس شناخت دقیق برند، مخاطب و بازار انجام می‌شود."], bullets: ["استراتژی برند", "هویت بصری", "هویت کلامی", "نام‌گذاری و شعار", "هویت دیجیتال", "هویت حسی"], placeholder: "تصویر پیشنهادی: کیت هویت برند" },
+  { id: "07", kind: "content", title: "ارتباطات برند", body: ["ساختن رابطه‌ای پایدار، هدفمند و قابل اعتماد میان برند و مخاطب."], bullets: ["تجربه برند", "نگهبانی برند", "تجربه مشتری", "تجربه کارکنان", "طراحی کمپین", "طراحی تبلیغات", "طراحی محتوا", "هدایت هنری", "تقویم محتوایی"], placeholder: "موکاپ پیشنهادی: اکوسیستم ارتباطات برند" },
+  { id: "08", kind: "content", title: "دیجیتال مارکتینگ", body: ["مسیر رشد برند بدون برنامه‌ریزی دقیق دیجیتال کامل نمی‌شود.", "هدف: دیده شدن، تعامل، تبدیل."], bullets: ["پیاده‌سازی مارکتینگ", "خلاقیت و تولید محتوا", "اسپانسرینگ", "طراحی وب و اپلیکیشن", "مدیریت شبکه‌های اجتماعی", "SEO", "PR دیجیتال / VOD", "Google Ads"], placeholder: "تصویر پیشنهادی: صحنه دیجیتال مارکتینگ" },
+  { id: "09", kind: "content", title: "برنامه‌ریزی رسانه", body: ["انتخاب دقیق کانال‌ها و زمان‌بندی مناسب برای نمایش پیام برند."], bullets: ["استراتژی رسانه‌ای", "ترکیب کانال‌ها", "تخصیص بودجه", "زمان‌بندی کمپین", "بهینه‌سازی عملکرد"], placeholder: "دیاگرام پیشنهادی: مسیر رسانه" },
+  { id: "10", kind: "content", title: "فروش آنلاین", body: ["فروش آنلاین تنها نمایش محصول نیست؛ طراحی مسیر تبدیل است."], bullets: ["رشد مارکت‌پلیس", "مدیریت فروشگاه برند", "تجارت آنلاین جهانی", "مدیریت اعتبار آنلاین"], placeholder: "موکاپ پیشنهادی: فروشگاه آنلاین" },
+  { id: "11", kind: "content", title: "OurClients", body: ["نمایش لوگوی مشتریان و برندهای همکار"], placeholder: "لوگو وال پیشنهادی: مشتریان و همکاران" },
+  { id: "12", kind: "cover", kicker: "SPM", title: "Marketing Proposal", subtitle: "SPM Project · Feb - 2026", placeholder: "تصویر پیشنهادی: کاور فاز مارکتینگ" },
+  { id: "13", kind: "divider", title: "Introduction", subtitle: "مقدمه" },
+  { id: "14", kind: "content", title: "ROSS Philosophy", body: ["انسان از خاک برخاسته؛ رس، نماد پیوند ماده و معناست.", "رس نرم و انعطاف‌پذیر است؛ مانند ذهن خلاق انسان.", "در رس، تداوم، جاودانگی و انسانیت نهفته است."], bullets: ["الهام‌بخش", "پویا", "اصیل", "ریشه‌دارترین", "منعطف", "انسان‌محور", "تعامل‌گرا", "مشتاق"], placeholder: "تصویر پیشنهادی: فرم ارگانیک الهام‌گرفته از رس" },
+  { id: "15", kind: "content", title: "Human Meaningful Advertising", body: ["ما اعتقاد داریم تبلیغات باید انسانی‌تر و معنادارتر باشد.", "استفاده نابجا از فناوری منجر به محتوای سطحی می‌شود.", "هدف ما: ارتباطی سالم، انسانی و اثرگذار با مخاطب."], placeholder: "تصویر پیشنهادی: انسان و رسانه" },
+  { id: "16", kind: "content", title: "افتخارات و تجربه‌ها", bullets: ["برنده دو جایزه Gerety فرانسه", "برنده جشنواره نیویورک", "برنده Bowery", "تجربه اجرای کمپین‌های تبلیغاتی", "همکاری با برندهای متنوع"], placeholder: "مدال پیشنهادی: افتخارات" },
+  { id: "17", kind: "content", title: "Gerety Award", body: ["برنده جایزه بین‌المللی از جشنواره Gerety فرانسه"], placeholder: "تصویر پیشنهادی: مستند جایزه Gerety" },
+  { id: "18", kind: "content", title: "New York / Bowery", body: ["برنده مقام برنز از جشنواره نیویورک / Bowery Awards"], placeholder: "تصویر پیشنهادی: مستند جایزه Bowery" },
+  { id: "19", kind: "content", title: "معرفی پروژه", body: ["هدف: طراحی رویکرد متفاوت برای افزایش فروش و جایگاه تازه SPM.", "تمرکز: شناخت بازار، مخاطب و مسیرهای رشد."], placeholder: "دیاگرام پیشنهادی: معرفی پروژه" },
+  { id: "20", kind: "content", title: "چرا این پروژه؟", body: ["رشد SPM در بازار مواد شوینده تخصصی دستگاه قهوه.", "نیاز به آموزش، آگاهی و اعتمادسازی."], bullets: ["محیط‌های حرفه‌ای مانند کافه‌ها", "مصرف‌کنندگان خانگی"], placeholder: "تصویر پیشنهادی: کافه و خانه" },
+  { id: "21", kind: "content", title: "SPM چیست؟", body: ["برند تخصصی تولید مواد شوینده دستگاه قهوه و آسیاب."], bullets: ["تنها برند ایرانی دارای سیب سلامت", "کیفیت قابل رقابت با خارجی", "قیمت اقتصادی‌تر", "افزایش عمر دستگاه"], placeholder: "تصویر پیشنهادی: محصول برند" },
+  { id: "22", kind: "content", title: "مخاطب هدف: کافه‌ها", bullets: ["آگاهی نسبی از نگهداری", "شناخت ناکافی از SPM", "انتخاب بر اساس عادت یا توصیه"], placeholder: "تصویر پیشنهادی: فضای کافه" },
+  { id: "23", kind: "content", title: "مخاطب هدف: خانگی", bullets: ["آگاهی محدود از نظافت دوره‌ای", "نیاز به آموزش", "آشنایی با SPM پس از آگاهی"], placeholder: "تصویر پیشنهادی: دستگاه خانگی" },
+  { id: "24", kind: "content", title: "چالش اصلی", body: ["SPM تخصصی است اما به اندازه کافی در ذهن مخاطب شناخته نشده.", "فاصله میان کیفیت محصول و جایگاه ذهنی.", "نیاز به آگاهی، اعتمادسازی، جایگاه‌سازی."], placeholder: "دیاگرام پیشنهادی: شکاف ذهنی بازار" },
+  { id: "25", kind: "content", title: "مسیر پیشنهادی پروژه", bullets: ["Strategy", "Awareness", "Positioning", "Advertising", "Sell"], body: ["حرکت از شناخت بازار تا رشد فروش."], placeholder: "دیاگرام پیشنهادی: مسیر رشد فروش" },
+  { id: "26", kind: "divider", title: "Strategy", subtitle: "استراتژی" },
+  { id: "27", kind: "content", title: "SPM Strategy", body: ["مسیر تصمیم‌سازی دقیق پروژه"], bullets: ["تحقیقات بازار", "تحلیل مخاطب", "تدوین استراتژی ارتباطی"], placeholder: "نقشه پیشنهادی: فاز استراتژی" },
+  { id: "28", kind: "content", title: "تحقیقات بازار", bullets: ["پتانسیل بازار کافه‌ها و خانگی", "بررسی رقبا", "شناسایی خلأهای بازار"], placeholder: "نمودار پیشنهادی: فرصت بازار" },
+  { id: "29", kind: "content", title: "تحلیل مخاطب", bullets: ["شناخت حرفه‌ای و خانگی", "تحلیل دغدغه‌ها", "شناخت موانع اعتماد و خرید"], placeholder: "پرسونا پیشنهادی: مخاطبان" },
+  { id: "30", kind: "content", title: "تدوین استراتژی ارتباطی", bullets: ["تعریف پیام اصلی", "تعیین لحن", "اتصال به آگاهی، جایگاه‌سازی و فروش"], placeholder: "دیاگرام پیشنهادی: چارچوب پیام" },
+  { id: "31", kind: "divider", title: "Awareness", subtitle: "آگاهی" },
+  { id: "32", kind: "content", title: "SPM Awareness", body: ["برای رشد برند، ابتدا باید بازار نسبت به مسئله اصلی آگاه شود."], bullets: ["PR", "Social Media", "Digital"], placeholder: "اینفوگرافی پیشنهادی: ستون‌های آگاهی" },
+  { id: "33", kind: "content", title: "PR / Social / Digital", body: ["PR: مقالات آموزشی، اطلاع‌رسانی، معرفی کاربرد محصول.", "Social: آموزش، ارتباط مستمر، تقویت اعتماد.", "Digital: وب‌سایت به‌عنوان هسته ارتباط و فروش."], placeholder: "موکاپ پیشنهادی: محتوا و شبکه اجتماعی" },
+  { id: "34", kind: "divider", title: "Positioning", subtitle: "جایگاه‌سازی" },
+  { id: "35", kind: "content", title: "Positioning", bullets: ["SPM انتخاب تخصصی", "کیفیت رقابتی", "قیمت اقتصادی‌تر", "اعتمادپذیری برند داخلی"], placeholder: "دیاگرام پیشنهادی: جایگاه ذهنی برند" },
+  { id: "36", kind: "content", title: "Recommendation & Endorsement", bullets: ["همکاری با افراد معتبر حوزه قهوه", "توصیه متخصصان", "همکاری با کافه‌ها", "اعتبار از تجربه واقعی"], placeholder: "تصویر پیشنهادی: endorsement واقعی" },
+  { id: "37", kind: "content", title: "Campaign Design", bullets: ["نمایش اهمیت نگهداری", "تفاوت شوینده تخصصی با عمومی", "تأکید کیفیت و بهداشت", "تقویت تصویر انتخاب درست"], placeholder: "موکاپ پیشنهادی: کمپین دیجیتال" },
+  { id: "38", kind: "divider", title: "Advertising", subtitle: "تبلیغات" },
+  { id: "39", kind: "content", title: "Media Planning", body: ["پیام برند در کانال‌های مرتبط با مخاطب نمایش داده شود.", "انتخاب رسانه‌های مؤثر و مسیر دیده‌شدن."], placeholder: "نقشه پیشنهادی: media planning" },
+  { id: "40", kind: "content", title: "Suggested Media Channels", bullets: ["SnappFood", "Digikala", "SnappMarket", "DigiMarket", "Okala", "In-store Lightbox Media"], body: ["هدف: افزایش دیده‌شدن، اتصال پیام به خرید، افزایش آگاهی و آمادگی فروش."], placeholder: "لوکیشن پیشنهادی: کانال‌های رسانه‌ای" },
+  { id: "41", kind: "divider", title: "Sell", subtitle: "فروش" },
+  { id: "42", kind: "content", title: "Sell", bullets: ["POS", "Bundle / Sampling", "Promotion"], body: ["فعال‌سازی فروش و تبدیل مخاطب آگاه به خریدار."], placeholder: "دیاگرام پیشنهادی: قیف فروش" },
+  { id: "43", kind: "content", title: "POS", body: ["اقلام Point of Sale برای دیده‌شدن در محل فروش."], bullets: ["تصمیم خرید", "تقویت حضور برند", "ارتباط مستقیم هنگام خرید"], placeholder: "موکاپ پیشنهادی: استند فروشگاهی" },
+  { id: "44", kind: "content", title: "Bundle / Sampling", body: ["تجربه‌سازی محصول و کاهش مانع خرید."], bullets: ["نمونه محصول", "پیشنهاد خرید ترکیبی", "افزایش تست", "تبدیل تجربه به خرید"], placeholder: "تصویر پیشنهادی: پک نمونه" },
+  { id: "45", kind: "content", title: "Promotion", body: ["تحریک خرید و فعال‌سازی مخاطب در بازه‌های مشخص."], bullets: ["انگیزه خرید", "پیشنهاد محدود", "رشد فروش", "خرید مجدد"], placeholder: "تصویر پیشنهادی: کمپین پروموشن" },
+  { id: "46", kind: "content", title: "Budgeting", bullets: ["Strategy → View / Engagement", "Awareness → View / Page View", "Positioning → CTR / View", "Advertising → Impression / View", "Sell → Click / Conversion", "KPI: View, Page View, CTR, Impression, Click, Conversion", "نمونه: 110000 Click · 250000 View · 1.2M Impression"], placeholder: "دیاگرام پیشنهادی: مسیر KPI و بودجه" },
+  { id: "47", kind: "cover", title: "Thanks", subtitle: "For watching · SPM Project · Feb - 2026", placeholder: "تصویر پیشنهادی: پایان‌بندی سینمایی" },
+];
+
+function SlideCard({ slide }: { slide: Slide }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: false, margin: "-20% 0px -20% 0px" });
+
+  if (slide.kind === "divider") {
+    return <section className="mx-auto my-24 flex min-h-[55vh] w-[min(1100px,92vw)] items-center justify-center rounded-[3rem] bg-[#141313] text-[#f8f1e8]"><div className="text-center"><p className="text-sm tracking-[0.3em] text-[#f4b8c8]">DIVIDER</p><h2 className="mt-6 text-5xl font-bold">{slide.title}</h2><p className="mt-4 text-2xl text-[#f8f1e8]/80">{slide.subtitle}</p></div></section>;
+  }
+
   return (
-    <main className="min-h-screen bg-[#f7f4ef] px-10 py-16 text-black">
-      <section className="mx-auto flex min-h-[70vh] max-w-5xl flex-col justify-center">
-        <p className="mb-6 text-sm font-medium tracking-[0.35em] text-black/40">
-          ROSS PROPOSAL MVP
-        </p>
+    <motion.section ref={ref} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="mx-auto my-10 grid w-[min(1200px,94vw)] gap-6 rounded-[2.6rem] border border-black/10 bg-[#fbf7f1] p-8 shadow-[0_25px_60px_-45px_rgba(40,20,10,0.5)] md:grid-cols-2">
+      <div>
+        <p className="text-xs tracking-[0.25em] text-black/45">SLIDE {slide.id} {slide.kicker ? `— ${slide.kicker}` : ""}</p>
+        <h3 className="mt-3 text-4xl font-bold leading-tight">{slide.title}</h3>
+        {slide.subtitle && <p className="mt-3 text-lg text-black/60">{slide.subtitle}</p>}
+        {slide.body?.map((b) => <p className="mt-4 leading-8 text-black/80" key={b}>{b}</p>)}
+        <div className="mt-6 space-y-3">
+          {slide.bullets?.map((x) => <div key={x} className="flex items-start gap-2"><CircleDot className="mt-1 size-4 text-[#df7092]" /><p>{x}</p></div>)}
+        </div>
+      </div>
+      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#f2cbc1] via-[#f8ead6] to-[#dce8e4] p-6">
+        <div className="absolute -left-10 -top-8 h-32 w-40 rounded-[43%_57%_70%_30%/35%_45%_55%_65%] bg-white/50 blur-xl" />
+        <div className="absolute -bottom-12 -right-12 h-44 w-44 rounded-[65%_35%_52%_48%/44%_47%_53%_56%] bg-[#d1a2b3]/50 blur-2xl" />
+        <p className="relative z-10 mt-28 rounded-2xl border border-black/10 bg-white/60 p-4 text-sm">{slide.placeholder}</p>
+      </div>
+    </motion.section>
+  );
+}
 
-        <h1 className="text-6xl font-extrabold leading-tight">
-          تست فونت پیدا برای پروپوزال تعاملی رس
-        </h1>
+export default function Home() {
+  const container = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  useEffect(() => {
+    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    const raf = (time: number) => {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    };
+    requestAnimationFrame(raf);
+    return () => lenis.destroy();
+  }, []);
 
-        <p className="mt-8 max-w-2xl text-xl leading-10 text-black/65">
-          اگر این متن فارسی نرم، تمیز و درست نمایش داده می‌شود، یعنی فونت پیدا و ساختار راست‌به‌چپ پروژه درست فعال شده است.
-        </p>
+  const sections = useMemo(() => slides, []);
+
+  return (
+    <main ref={container} className="relative bg-[#f7f4ef] pb-28">
+      <motion.div style={{ scaleX }} className="fixed right-0 top-0 z-50 h-1 w-full origin-right bg-gradient-to-l from-[#101010] via-[#d46f8e] to-[#f3c8a6]" />
+      <section className="relative min-h-screen overflow-hidden px-6 py-20">
+        <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 7, repeat: Infinity }} className="absolute left-10 top-20 h-44 w-44 rounded-[57%_43%_39%_61%/36%_49%_51%_64%] bg-[#f3b8c4]/45 blur-xl" />
+        <motion.div animate={{ y: [0, 25, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute bottom-20 right-10 h-60 w-60 rounded-[50%_50%_33%_67%/56%_37%_63%_44%] bg-[#d4e1dc] blur-xl" />
+        <div className="relative z-10 mx-auto flex min-h-[70vh] w-[min(1200px,96vw)] flex-col justify-center">
+          <p className="text-sm tracking-[0.4em] text-black/50">ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
+          <h1 className="mt-4 text-6xl font-extrabold leading-tight md:text-8xl">SPM Proposal Experience</h1>
+          <p className="mt-6 max-w-3xl text-xl leading-9 text-black/70">روایتی سینمایی از استراتژی، آگاهی، جایگاه‌سازی، تبلیغات و فروش برای برند SPM با تمرکز بر تجربه انسانی و حرکتی.</p>
+          <div className="mt-10 flex items-center gap-4"><Sparkles /><span>Scroll to enter chapters</span><ArrowUpRight /></div>
+        </div>
       </section>
+      {sections.map((slide) => <SlideCard key={slide.id} slide={slide} />)}
     </main>
   );
 }
