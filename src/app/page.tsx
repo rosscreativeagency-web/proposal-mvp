@@ -1,8 +1,9 @@
 "use client";
 
 import Lenis from "lenis";
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useMemo } from "react";
+import { BlobField } from "@/components/BlobField";
 import {
   ArrowUpRight,
   CircleDot,
@@ -214,6 +215,22 @@ function renderSlide(slide: Slide, idx: number) {
 
 
 
+
+
+function getChapterBlobConfig(chapterClass: string) {
+  const map = {
+    "chapter-prelude": { palette: ["rgba(246,184,200,0.32)", "rgba(189,216,212,0.3)", "rgba(242,202,157,0.28)"] as [string, string, string], density: 6, motionProfile: "drift" as const },
+    "chapter-intro": { palette: ["rgba(239,165,194,0.28)", "rgba(186,225,214,0.26)", "rgba(244,221,180,0.24)"] as [string, string, string], density: 5, motionProfile: "calm" as const },
+    "chapter-strategy": { palette: ["rgba(164,208,203,0.24)", "rgba(236,197,225,0.2)", "rgba(241,207,171,0.22)"] as [string, string, string], density: 4, motionProfile: "calm" as const },
+    "chapter-awareness": { palette: ["rgba(245,211,174,0.26)", "rgba(232,186,206,0.24)", "rgba(176,209,226,0.22)"] as [string, string, string], density: 6, motionProfile: "drift" as const },
+    "chapter-positioning": { palette: ["rgba(219,199,242,0.24)", "rgba(244,208,188,0.24)", "rgba(188,220,205,0.2)"] as [string, string, string], density: 5, motionProfile: "drift" as const },
+    "chapter-advertising": { palette: ["rgba(169,211,223,0.24)", "rgba(243,195,180,0.22)", "rgba(244,224,179,0.2)"] as [string, string, string], density: 6, motionProfile: "float" as const },
+    "chapter-sell": { palette: ["rgba(247,198,170,0.26)", "rgba(243,223,173,0.23)", "rgba(204,224,213,0.2)"] as [string, string, string], density: 5, motionProfile: "float" as const },
+    "chapter-closing": { palette: ["rgba(220,220,220,0.18)", "rgba(247,220,205,0.18)", "rgba(214,223,231,0.16)"] as [string, string, string], density: 4, motionProfile: "calm" as const },
+  } as const;
+  return map[chapterClass as keyof typeof map] ?? map["chapter-prelude"];
+}
+
 type ChapterGroup = { key: string; chapterClass: string; slides: Slide[]; offset: number };
 
 function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
@@ -222,7 +239,7 @@ function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startId
   const panelGlow = useTransform(smoothed, [0.15, 0.3, 0.45], [0.3, 0.6, 1]);
   const visualScale = useTransform(smoothed, [0.15, 0.6], [0.92, 1.04]);
   return (
-    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-project-brief`}>
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-project-brief`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />
       <div style={{ position: 'sticky', top: '10vh', zIndex: 2, display: 'grid', gridTemplateColumns: 'minmax(260px, 0.8fr) 1fr', gap: 28, alignItems: 'start' }}>
         <motion.aside style={{ opacity: panelGlow }} className="sticky-narrative">
           <p className="eyebrow">PROJECT BRIEF</p><h3>From Challenge to Opportunity</h3>
@@ -249,7 +266,7 @@ function StrategyMapChapter({ group, startIdx }: { group: ChapterGroup; startIdx
   const stepTwoY = useTransform(strategyProgress, [0.28, 0.5, 0.68], [8, 0, 4]);
   const stepThreeY = useTransform(strategyProgress, [0.62, 0.82, 1], [8, 0, 4]);
   return (
-    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-strategy-map`}>
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-strategy-map`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />
       <div style={{ position: 'sticky', top: '9vh', zIndex: 2, marginBottom: 24 }}>
         <p className="eyebrow">STRATEGY MAP</p>
         <div style={{ display: 'flex', gap: 12 }}>
@@ -273,7 +290,7 @@ function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; start
   const socialScale = useTransform(orbitProgress, [0.28, 0.48, 0.68], [0.92, 1.08, 0.98]);
   const digitalScale = useTransform(orbitProgress, [0.58, 0.78, 1], [0.92, 1.08, 0.98]);
   return (
-    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-awareness-orbit`}>
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-awareness-orbit`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />
       <div style={{ position: 'sticky', top: '12vh', zIndex: 2, display: 'grid', justifyItems: 'center', marginBottom: 30 }}>
         <motion.div style={{ width: 240, height: 240, borderRadius: '50%', border: '1px solid rgba(255,255,255,.2)', display: 'grid', placeItems: 'center', position: 'relative' }}>
           <motion.div className="bullet" style={{ position: 'absolute', left: 'calc(50% + 96px)', top: '50%', opacity: prOpacity, scale: prScale }}>PR</motion.div>
@@ -290,10 +307,6 @@ function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; start
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { damping: 28, stiffness: 140 });
-  const mx = useMotionValue(0);
-  const my = useMotionValue(0);
-  const bgX = useTransform(mx, [-300, 300], [-30, 30]);
-  const bgY = useTransform(my, [-200, 200], [-24, 24]);
 
   useEffect(() => {
     const lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
@@ -312,10 +325,8 @@ export default function Home() {
   const sections = useMemo(() => slides, []);
 
   return (
-    <main className="proposal-root" onMouseMove={(e) => { mx.set(e.clientX - window.innerWidth / 2); my.set(e.clientY - window.innerHeight / 2); }}>
+    <main className="proposal-root">
       <motion.div className="progress" style={{ scaleX: progress }} />
-      <motion.div className="blob b1" style={{ x: bgX, y: bgY }} />
-      <motion.div className="blob b2" style={{ x: useTransform(bgX, (v) => v * -0.6), y: useTransform(bgY, (v) => v * 0.5) }} />
       <section className="cover">
         <p>ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>SPM Proposal Experience</motion.h1>
@@ -336,7 +347,7 @@ export default function Home() {
         if (group.chapterClass === 'chapter-intro') return <ProjectBriefChapter key={group.key} group={group} startIdx={group.offset} />;
         if (group.chapterClass === 'chapter-strategy') return <StrategyMapChapter key={group.key} group={group} startIdx={group.offset} />;
         if (group.chapterClass === 'chapter-awareness') return <AwarenessOrbitChapter key={group.key} group={group} startIdx={group.offset} />;
-        return <section key={group.key} className={`chapter ${group.chapterClass}`}>{group.slides.map((slide, i) => renderSlide(slide, group.offset + i))}</section>;
+        return <section key={group.key} className={`chapter ${group.chapterClass}`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />{group.slides.map((slide, i) => renderSlide(slide, group.offset + i))}</section>;
       })}
     </main>
   );
