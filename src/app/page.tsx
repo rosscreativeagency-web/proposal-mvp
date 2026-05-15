@@ -2,6 +2,8 @@
 
 import Lenis from "lenis";
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { BreathingCard, GlowMedia, InteractiveBullet, MagneticAction, TiltPanel } from "@/components/interaction/InteractiveWrappers";
+import { motionTokens, whenMotionAllowed } from "@/lib/motion-tokens";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BlobField } from "@/components/BlobField";
 import { ChapterDivider } from "@/components/ChapterDivider";
@@ -128,6 +130,7 @@ const budgetMatrixEntries: BudgetMatrixEntry[] = [
 ];
 
 function SlideContent({ slide, idx, sectionClass }: { slide: Slide; idx: number; sectionClass: string }) {
+  const shouldReduceMotion = useReducedMotion();
   const icon = icons[idx % icons.length];
   const Icon = icon;
   const mode = idx % 6;
@@ -138,13 +141,13 @@ function SlideContent({ slide, idx, sectionClass }: { slide: Slide; idx: number;
         <h3>{slide.title}</h3>
         {slide.subtitle && <p className="subtitle">{slide.subtitle}</p>}
         {slide.body?.map((b) => <p className="body" key={b}>{b}</p>)}
-        {!!slide.bullets?.length && <div className="bullet-grid">{slide.bullets.map((item) => <motion.div whileHover={{ y: -4, x: -3 }} className="bullet" key={item}><CircleDot size={14} />{item}</motion.div>)}</div>}
+        {!!slide.bullets?.length && <div className="bullet-grid">{slide.bullets.map((item) => <InteractiveBullet reduceMotion={!!shouldReduceMotion} className="bullet" key={item}><CircleDot size={14} />{item}</InteractiveBullet>)}</div>}
       </div>
-      <motion.div className={`media-block media-${slide.placeholderVariant ?? getPlaceholderVariant(slide)}`} whileHover={{ rotate: -1, scale: 1.02 }}>
+      <TiltPanel reduceMotion={!!shouldReduceMotion} className={`media-block media-${slide.placeholderVariant ?? getPlaceholderVariant(slide)}`}>
         <div className="media-float" />
         <div className="media-frame"><Icon className="icon" /><p>{slide.placeholder}</p></div>
         <div className="media-mini" />
-      </motion.div>
+      </TiltPanel>
     </motion.section>
   );
 }
@@ -210,7 +213,8 @@ function MediaLandscapeSection({ slide, idx }: { slide: Slide; idx: number }) {
 function SellFlowSection({ slide, idx }: { slide: Slide; idx: number }) {
   return <SlideContent slide={slide} idx={idx} sectionClass="section-sell-flow" />;
 }
-function BudgetMatrixSection({ slide }: { slide: Slide; idx: number }) {
+function BudgetMatrixSection({ slide }: { slide: Slide }) {
+  const shouldReduceMotion = useReducedMotion();
   const [activeRow, setActiveRow] = useState<BudgetMatrixEntry["stage"] | null>(null);
   const [activeCol, setActiveCol] = useState<"kpi" | "channel" | null>(null);
 
@@ -227,10 +231,10 @@ function BudgetMatrixSection({ slide }: { slide: Slide; idx: number }) {
         {!!slide.bullets?.length && (
           <div className="bullet-grid">
             {slide.bullets.map((item) => (
-              <motion.div whileHover={{ y: -4, x: -3 }} className="bullet" key={item}>
+              <InteractiveBullet reduceMotion={!!shouldReduceMotion} className="bullet" key={item}>
                 <CircleDot size={14} />
                 {item}
-              </motion.div>
+              </InteractiveBullet>
             ))}
           </div>
         )}
@@ -339,7 +343,7 @@ type ChapterGroup = { key: string; chapterClass: string; slides: Slide[]; offset
 
 function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
   const { scrollYProgress } = useScroll();
-  const smoothed = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
+  const smoothed = useSpring(scrollYProgress, motionTokens.spring.gentle);
   const panelGlow = useTransform(smoothed, [0.15, 0.3, 0.45], [0.3, 0.6, 1]);
   const visualScale = useTransform(smoothed, [0.15, 0.6], [0.92, 1.04]);
   return (
@@ -362,7 +366,7 @@ function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startId
 
 function StrategyMapChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
   const { scrollYProgress } = useScroll();
-  const strategyProgress = useSpring(scrollYProgress, { stiffness: 130, damping: 30 });
+  const strategyProgress = useSpring(scrollYProgress, motionTokens.spring.responsive);
   const stepOneOpacity = useTransform(strategyProgress, [0, 0.18, 0.34], [0.55, 1, 0.65]);
   const stepTwoOpacity = useTransform(strategyProgress, [0.28, 0.5, 0.68], [0.55, 1, 0.65]);
   const stepThreeOpacity = useTransform(strategyProgress, [0.62, 0.82, 1], [0.55, 1, 0.7]);
@@ -386,7 +390,7 @@ function StrategyMapChapter({ group, startIdx }: { group: ChapterGroup; startIdx
 
 function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
   const { scrollYProgress } = useScroll();
-  const orbitProgress = useSpring(scrollYProgress, { stiffness: 110, damping: 26 });
+  const orbitProgress = useSpring(scrollYProgress, motionTokens.spring.gentle);
   const prOpacity = useTransform(orbitProgress, [0, 0.18, 0.36], [0.4, 1, 0.6]);
   const socialOpacity = useTransform(orbitProgress, [0.28, 0.48, 0.68], [0.4, 1, 0.6]);
   const digitalOpacity = useTransform(orbitProgress, [0.58, 0.78, 1], [0.4, 1, 0.65]);
@@ -411,7 +415,7 @@ function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; start
 export default function Home() {
   const shouldReduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { damping: 28, stiffness: 140 });
+  const progress = useSpring(scrollYProgress, motionTokens.spring.responsive);
   const lenisRef = useRef<Lenis | null>(null);
   const chapterRefs = useRef<Record<string, HTMLElement | null>>({});
   const [activeChapter, setActiveChapter] = useState<string>(chapterRailItems[0].key);
@@ -474,19 +478,20 @@ export default function Home() {
               type="button"
               className={`chapter-rail-item ${isActive ? "is-active" : ""}`}
               onClick={() => scrollToChapter(item.key)}
-              whileHover={shouldReduceMotion ? undefined : { x: -2, scale: 1.02 }}
-              whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
+              whileHover={whenMotionAllowed(!!shouldReduceMotion, { x: -2, scale: 1.02 })}
+              whileTap={whenMotionAllowed(!!shouldReduceMotion, { scale: 0.98 })}
             >
-              <motion.span
+              <GlowMedia
                 className="chapter-rail-shape"
                 layout
+                reduceMotion={!!shouldReduceMotion}
                 animate={isActive ? { borderRadius: "1rem", boxShadow: "0 0 0 1px rgba(216,138,166,.55), 0 0 28px rgba(216,138,166,.3)" } : { borderRadius: "999px", boxShadow: "0 0 0 1px rgba(0,0,0,.1), 0 0 0 rgba(0,0,0,0)" }}
-                transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 270, damping: 24 }}
+                transition={shouldReduceMotion ? { duration: 0 } : motionTokens.spring.panel}
               >
-                <motion.span animate={isActive && !shouldReduceMotion ? { y: [0, -1.6, 0] } : { y: 0 }} transition={{ duration: 1.8, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}>
+                <BreathingCard reduceMotion={!isActive || !!shouldReduceMotion}>
                   <Icon size={14} />
-                </motion.span>
-              </motion.span>
+                </BreathingCard>
+              </GlowMedia>
               <span>{item.label}</span>
             </motion.button>
           );
@@ -496,7 +501,7 @@ export default function Home() {
         <p>ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
         <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>SPM Proposal Experience</motion.h1>
         <h2>روایتی سینمایی، تعاملی و زنده از مسیر Strategy تا Sell</h2>
-        <motion.button whileHover={{ y: -4, scale: 1.03 }} whileTap={{ scale: 0.97 }} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></motion.button>
+        <MagneticAction reduceMotion={!!shouldReduceMotion} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></MagneticAction>
       </section>
       {useMemo(() => {
         const groups: ChapterGroup[] = [];
