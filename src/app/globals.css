@@ -107,3 +107,13 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .media-icon-cluster::before{inset:10% 6%;background:radial-gradient(circle at 14% 30%,#f4bfd477 0 12%,transparent 13%),radial-gradient(circle at 38% 74%,#bbded477 0 10%,transparent 11%),radial-gradient(circle at 78% 33%,#efd39a88 0 13%,transparent 14%),radial-gradient(circle at 82% 77%,#ffffff9a 0 8%,transparent 9%)}
 .media-icon-cluster::after{inset:12% auto auto 52%;width:34%;height:56%;border:1px dashed #00000026;border-radius:1.2rem;transform:rotate(7deg)}
 .media-icon-cluster .media-frame::before{inset:6% 4%;border-radius:1.1rem;border:1px solid #ffffff7f;clip-path:polygon(3% 8%,97% 0,100% 95%,5% 100%)}
+
+.section-budget-matrix{align-items:start}
+.budget-matrix{display:grid;gap:.55rem;padding:1rem;border-radius:1.5rem;border:1px solid #00000018;background:#ffffff9e;backdrop-filter:blur(8px)}
+.budget-grid{position:relative;display:grid;grid-template-columns:minmax(118px,.8fr) 1fr 1fr;gap:.45rem}
+.budget-cell{padding:.68rem .8rem;border:1px solid #00000018;border-radius:.85rem;background:#fff9;color:#111f;text-align:right;font:inherit}
+.budget-head{cursor:pointer;font-weight:600}
+.budget-stage{cursor:pointer;font-weight:600}
+.budget-row .budget-cell{transition:transform .24s ease,box-shadow .24s ease,background .24s ease,border-color .24s ease}
+.budget-cell.is-active,.budget-row.is-active .budget-stage,.budget-head.is-active{background:#fff;border-color:#d88aa6;box-shadow:0 12px 24px -20px #000;transform:translateY(-1px)}
+.budget-flow-highlight{position:absolute;inset:-.22rem;border-radius:1rem;border:1px dashed #d98cac77;pointer-events:none}
