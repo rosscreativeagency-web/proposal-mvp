@@ -17,3 +17,19 @@ body {
   font-family: var(--font-peyda), sans-serif;
   overflow-x: hidden;
 }
+
+.proposal-root::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 15% 20%,#f5bfd050 0,transparent 40%),radial-gradient(circle at 80% 70%,#cfe0dc70 0,transparent 42%);z-index:0}
+.dynamic-wrap{display:grid;gap:1.2rem;grid-template-columns:1.2fr 1fr;border:1px solid #00000012;border-radius:2rem;padding:1.5rem;background:#fbf7f1c9;backdrop-filter:blur(3px);box-shadow:0 28px 80px -50px rgba(40,20,10,.45)}
+.chapter-1 .dynamic-wrap{grid-template-columns:1fr 1.2fr;background:linear-gradient(130deg,#fff7f1,#f5efe9)}
+.chapter-2 .dynamic-wrap{border:none;background:linear-gradient(160deg,#f6f0ff,#fffdf9)}
+.chapter-3 .dynamic-wrap{transform:translateY(12px)}
+.placeholder-zone{position:relative;overflow:hidden;border-radius:1.8rem;padding:1.1rem;background:linear-gradient(135deg,#f2cbc1,#f8ead6,#dce8e4);min-height:250px;border:1px solid #00000012}
+.orb{position:absolute;filter:blur(18px);opacity:.6;animation:float 8s ease-in-out infinite}
+.orb.a{width:180px;height:120px;background:#fff;left:-50px;top:-40px;border-radius:40% 60% 50% 50%}
+.orb.b{width:160px;height:160px;background:#d1a2b3;right:-40px;bottom:-70px;border-radius:60% 40% 55% 45%}
+.chapter-break{margin:7rem auto;min-height:40vh;width:min(1000px,92vw);display:grid;place-content:center;text-align:center;border-radius:3rem;background:#141313;color:#f8f1e8;position:relative;overflow:hidden}
+.chapter-break::before{content:"";position:absolute;width:240px;height:240px;background:#f4b8c840;filter:blur(20px);border-radius:50%;top:-40px;left:10%;animation:float 10s infinite}
+.magnetic-btn{display:inline-flex;gap:.5rem;align-items:center;border:1px solid #00000020;padding:.8rem 1rem;border-radius:999px;transition:all .25s}
+.magnetic-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 10px 30px -20px #000;background:#fff}
+@media (max-width:900px){.dynamic-wrap,.chapter-1 .dynamic-wrap{grid-template-columns:1fr}}
+@keyframes float{50%{transform:translateY(-20px)}}
