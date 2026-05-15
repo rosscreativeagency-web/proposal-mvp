@@ -212,6 +212,81 @@ function renderSlide(slide: Slide, idx: number) {
   }
 }
 
+
+
+type ChapterGroup = { key: string; chapterClass: string; slides: Slide[]; offset: number };
+
+function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
+  const { scrollYProgress } = useScroll();
+  const smoothed = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
+  const panelGlow = useTransform(smoothed, [0.15, 0.3, 0.45], [0.3, 0.6, 1]);
+  const visualScale = useTransform(smoothed, [0.15, 0.6], [0.92, 1.04]);
+  return (
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-project-brief`}>
+      <div style={{ position: 'sticky', top: '10vh', zIndex: 2, display: 'grid', gridTemplateColumns: 'minmax(260px, 0.8fr) 1fr', gap: 28, alignItems: 'start' }}>
+        <motion.aside style={{ opacity: panelGlow }} className="sticky-narrative">
+          <p className="eyebrow">PROJECT BRIEF</p><h3>From Challenge to Opportunity</h3>
+          <p className="body">As we scroll the brief, the narrative locks in place while the visual state evolves from challenge to opportunity.</p>
+        </motion.aside>
+        <motion.div className="sticky-visual" style={{ scale: visualScale }}>
+          <div className="media-frame"><Target className="icon" /><p>SPM project state morphs with scroll: context → challenge → direction</p></div>
+        </motion.div>
+      </div>
+      <div style={{ marginTop: 28 }}>
+        {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+      </div>
+    </section>
+  );
+}
+
+function StrategyMapChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
+  const { scrollYProgress } = useScroll();
+  const strategyProgress = useSpring(scrollYProgress, { stiffness: 130, damping: 30 });
+  const stepOneOpacity = useTransform(strategyProgress, [0, 0.18, 0.34], [0.55, 1, 0.65]);
+  const stepTwoOpacity = useTransform(strategyProgress, [0.28, 0.5, 0.68], [0.55, 1, 0.65]);
+  const stepThreeOpacity = useTransform(strategyProgress, [0.62, 0.82, 1], [0.55, 1, 0.7]);
+  const stepOneY = useTransform(strategyProgress, [0, 0.18, 0.34], [8, 0, 4]);
+  const stepTwoY = useTransform(strategyProgress, [0.28, 0.5, 0.68], [8, 0, 4]);
+  const stepThreeY = useTransform(strategyProgress, [0.62, 0.82, 1], [8, 0, 4]);
+  return (
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-strategy-map`}>
+      <div style={{ position: 'sticky', top: '9vh', zIndex: 2, marginBottom: 24 }}>
+        <p className="eyebrow">STRATEGY MAP</p>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <motion.div style={{ opacity: stepOneOpacity, y: stepOneY }} className="bullet">Research</motion.div>
+          <motion.div style={{ opacity: stepTwoOpacity, y: stepTwoY }} className="bullet">Audience</motion.div>
+          <motion.div style={{ opacity: stepThreeOpacity, y: stepThreeY }} className="bullet">Messaging</motion.div>
+        </div>
+      </div>
+      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+    </section>
+  );
+}
+
+function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; startIdx: number }) {
+  const { scrollYProgress } = useScroll();
+  const orbitProgress = useSpring(scrollYProgress, { stiffness: 110, damping: 26 });
+  const prOpacity = useTransform(orbitProgress, [0, 0.18, 0.36], [0.4, 1, 0.6]);
+  const socialOpacity = useTransform(orbitProgress, [0.28, 0.48, 0.68], [0.4, 1, 0.6]);
+  const digitalOpacity = useTransform(orbitProgress, [0.58, 0.78, 1], [0.4, 1, 0.65]);
+  const prScale = useTransform(orbitProgress, [0, 0.18, 0.36], [0.92, 1.08, 0.98]);
+  const socialScale = useTransform(orbitProgress, [0.28, 0.48, 0.68], [0.92, 1.08, 0.98]);
+  const digitalScale = useTransform(orbitProgress, [0.58, 0.78, 1], [0.92, 1.08, 0.98]);
+  return (
+    <section className={`chapter ${group.chapterClass} chapter-sticky chapter-awareness-orbit`}>
+      <div style={{ position: 'sticky', top: '12vh', zIndex: 2, display: 'grid', justifyItems: 'center', marginBottom: 30 }}>
+        <motion.div style={{ width: 240, height: 240, borderRadius: '50%', border: '1px solid rgba(255,255,255,.2)', display: 'grid', placeItems: 'center', position: 'relative' }}>
+          <motion.div className="bullet" style={{ position: 'absolute', left: 'calc(50% + 96px)', top: '50%', opacity: prOpacity, scale: prScale }}>PR</motion.div>
+          <motion.div className="bullet" style={{ position: 'absolute', left: 'calc(50% - 48px)', top: 'calc(50% + 84px)', opacity: socialOpacity, scale: socialScale }}>Social</motion.div>
+          <motion.div className="bullet" style={{ position: 'absolute', left: 'calc(50% - 48px)', top: 'calc(50% - 84px)', opacity: digitalOpacity, scale: digitalScale }}>Digital</motion.div>
+          <Orbit className="icon" />
+        </motion.div>
+      </div>
+      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+    </section>
+  );
+}
+
 export default function Home() {
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { damping: 28, stiffness: 140 });
@@ -247,11 +322,22 @@ export default function Home() {
         <h2>روایتی سینمایی، تعاملی و زنده از مسیر Strategy تا Sell</h2>
         <motion.button whileHover={{ y: -4, scale: 1.03 }} whileTap={{ scale: 0.97 }} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></motion.button>
       </section>
-      {sections.map((slide, idx) => (
-        <section key={`chapter-${slide.id}`} className={`chapter ${getChapterClass(slide)}`}>
-          {renderSlide(slide, idx)}
-        </section>
-      ))}
+      {useMemo(() => {
+        const groups: ChapterGroup[] = [];
+        let idx = 0;
+        while (idx < sections.length) {
+          const chapterClass = getChapterClass(sections[idx]);
+          const start = idx;
+          while (idx < sections.length && getChapterClass(sections[idx]) === chapterClass) idx += 1;
+          groups.push({ key: `${chapterClass}-${start}`, chapterClass, slides: sections.slice(start, idx), offset: start });
+        }
+        return groups;
+      }, [sections]).map((group) => {
+        if (group.chapterClass === 'chapter-intro') return <ProjectBriefChapter key={group.key} group={group} startIdx={group.offset} />;
+        if (group.chapterClass === 'chapter-strategy') return <StrategyMapChapter key={group.key} group={group} startIdx={group.offset} />;
+        if (group.chapterClass === 'chapter-awareness') return <AwarenessOrbitChapter key={group.key} group={group} startIdx={group.offset} />;
+        return <section key={group.key} className={`chapter ${group.chapterClass}`}>{group.slides.map((slide, i) => renderSlide(slide, group.offset + i))}</section>;
+      })}
     </main>
   );
 }
