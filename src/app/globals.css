@@ -6,9 +6,6 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 
 .proposal-root { position: relative; padding-bottom: 8rem; isolation: isolate; }
 .progress { position: fixed; inset-inline: 0; top: 0; height: 4px; transform-origin: right; z-index: 80; background: linear-gradient(90deg,#1f1f1f,#d788a2,#f2ca9d); }
-.blob{position:fixed;filter:blur(30px);opacity:.5;z-index:-1;animation:blob 16s ease-in-out infinite}
-.b1{left:-80px;top:10vh;width:340px;height:280px;background:#f6b8c8;border-radius:47% 53% 31% 69%/44% 37% 63% 56%}
-.b2{right:-80px;top:45vh;width:380px;height:280px;background:#bdd8d4;border-radius:57% 43% 61% 39%/42% 54% 46% 58%;animation-duration:21s}
 
 .chapter{position:relative;container-type:inline-size;container-name:chapter;padding-block:clamp(1.6rem,3vw,3rem)}
 .chapter::before{content:"";position:absolute;inset:6% 2%;pointer-events:none;border-radius:2.5rem;opacity:.6;filter:blur(2px)}
@@ -22,13 +19,24 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .chapter-closing{--chapter-width:min(940px,88vw);--chapter-gap:2.8rem;--chapter-rhythm:.9rem;--chapter-cols:1fr;--chapter-accent:radial-gradient(circle at 50% 50%,#11111112,transparent 68%)}
 .chapter::before{background:var(--chapter-accent)}
 
-.cover{min-height:96vh;padding:5rem 4vw;display:grid;place-content:center;gap:1rem;text-align:center;position:relative;overflow:hidden}
+.blob-field{position:absolute;inset:0;pointer-events:none;overflow:clip}
+.blob-shape{position:absolute;border-radius:42% 58% 57% 43%/38% 41% 59% 62%;filter:blur(36px);mix-blend-mode:multiply;will-change:transform}
+.blob-tier-1{opacity:.12}
+.blob-tier-2{opacity:.18}
+.blob-tier-3{opacity:.24}
+.blob-morph-1{animation:blobMorphA 16s ease-in-out infinite}
+.blob-morph-2{animation:blobMorphB 21s ease-in-out infinite}
+.blob-morph-3{animation:blobMorphC 18s ease-in-out infinite}
+.blob-morph-4{animation:blobMorphD 23s ease-in-out infinite}
+
+
+.cover{min-height:96vh;padding:5rem 4vw;display:grid;place-content:center;gap:1rem;text-align:center;position:relative;overflow:hidden;z-index:3}
 .cover h1{font-size:clamp(2.6rem,8vw,7.2rem);line-height:1.06;margin:0}
 .cover h2{font-weight:500;color:#111111bb;max-width:900px;margin:auto}
 .cover p{letter-spacing:.28em;font-size:.78rem;color:#11111188}
 .chapter-tag{margin:auto;border:1px solid #0000001f;padding:.9rem 1.1rem;border-radius:999px;background:#fff7}
 
-.scene{width:var(--chapter-width,min(1220px,94vw));margin:var(--chapter-gap,5rem) auto;display:grid;grid-template-columns:var(--chapter-cols,1.2fr 1fr);gap:1.4rem;align-items:center}
+.scene{position:relative;z-index:3;width:var(--chapter-width,min(1220px,94vw));margin:var(--chapter-gap,5rem) auto;display:grid;grid-template-columns:var(--chapter-cols,1.2fr 1fr);gap:1.4rem;align-items:center}
 .scene-1,.scene-3,.scene-5{grid-template-columns:1fr 1.2fr}
 .scene-2 .scene-text,.scene-4 .scene-text{background:transparent;border:0;box-shadow:none;padding-inline:0}
 .scene-text{padding:clamp(1.1rem,2.4vw,1.7rem);border:1px solid #00000014;border-radius:2rem;background:#fff8;backdrop-filter:blur(7px);box-shadow:0 22px 70px -50px #000}
@@ -61,4 +69,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 
 @media (max-width: 900px){.cover{min-height:88vh}}
 @keyframes float{50%{transform:translateY(-14px)}}
-@keyframes blob{50%{transform:translate3d(0,-25px,0) scale(1.04);border-radius:61% 39% 47% 53%/31% 48% 52% 69%}}
+@keyframes blobMorphA{50%{transform:translate3d(0,-10px,0) scale(1.03);border-radius:61% 39% 47% 53%/31% 48% 52% 69%}}
+@keyframes blobMorphB{50%{transform:translate3d(12px,8px,0) scale(.98);border-radius:38% 62% 42% 58%/54% 37% 63% 46%}}
+@keyframes blobMorphC{50%{transform:translate3d(-9px,-6px,0) scale(1.02);border-radius:55% 45% 63% 37%/41% 60% 40% 59%}}
+@keyframes blobMorphD{50%{transform:translate3d(7px,-12px,0) scale(1.01);border-radius:46% 54% 36% 64%/58% 44% 56% 42%}}
