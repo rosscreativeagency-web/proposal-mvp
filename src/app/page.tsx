@@ -4,6 +4,7 @@ import Lenis from "lenis";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useEffect, useMemo } from "react";
 import { BlobField } from "@/components/BlobField";
+import { ChapterDivider } from "@/components/ChapterDivider";
 import {
   ArrowUpRight,
   CircleDot,
@@ -195,8 +196,8 @@ function getChapterClass(slide: Slide): string {
   return "chapter-closing";
 }
 
-function renderSlide(slide: Slide, idx: number) {
-  if (slide.kind === "divider") return <motion.section key={slide.id} className="divider" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}><span>{slide.id}</span><h2>{slide.title}</h2><p>{slide.subtitle}</p></motion.section>;
+function renderSlide(slide: Slide, idx: number, chapterClass: string) {
+  if (slide.kind === "divider") return <ChapterDivider key={slide.id} id={slide.id} title={slide.title} subtitle={slide.subtitle} chapterClass={chapterClass} />;
   if (slide.kind === "cover") return <section key={slide.id} className="cover mini"><p>{slide.kicker}</p><h1>{slide.title}</h1><h2>{slide.subtitle}</h2><div className="chapter-tag">{slide.placeholder}</div></section>;
   switch (getSlideLayout(slide)) {
     case "opening-hero":
@@ -263,7 +264,7 @@ function ProjectBriefChapter({ group, startIdx }: { group: ChapterGroup; startId
         </motion.div>
       </div>
       <div style={{ marginTop: 28 }}>
-        {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+        {group.slides.map((slide, i) => renderSlide(slide, startIdx + i, group.chapterClass))}
       </div>
     </section>
   );
@@ -288,7 +289,7 @@ function StrategyMapChapter({ group, startIdx }: { group: ChapterGroup; startIdx
           <motion.div style={{ opacity: stepThreeOpacity, y: stepThreeY }} className="bullet">Messaging</motion.div>
         </div>
       </div>
-      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i, group.chapterClass))}
     </section>
   );
 }
@@ -312,7 +313,7 @@ function AwarenessOrbitChapter({ group, startIdx }: { group: ChapterGroup; start
           <Orbit className="icon" />
         </motion.div>
       </div>
-      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i))}
+      {group.slides.map((slide, i) => renderSlide(slide, startIdx + i, group.chapterClass))}
     </section>
   );
 }
@@ -360,7 +361,7 @@ export default function Home() {
         if (group.chapterClass === 'chapter-intro') return <ProjectBriefChapter key={group.key} group={group} startIdx={group.offset} />;
         if (group.chapterClass === 'chapter-strategy') return <StrategyMapChapter key={group.key} group={group} startIdx={group.offset} />;
         if (group.chapterClass === 'chapter-awareness') return <AwarenessOrbitChapter key={group.key} group={group} startIdx={group.offset} />;
-        return <section key={group.key} className={`chapter ${group.chapterClass}`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />{group.slides.map((slide, i) => renderSlide(slide, group.offset + i))}</section>;
+        return <section key={group.key} className={`chapter ${group.chapterClass}`}><BlobField palette={getChapterBlobConfig(group.chapterClass).palette} density={getChapterBlobConfig(group.chapterClass).density} motionProfile={getChapterBlobConfig(group.chapterClass).motionProfile} zLayer={1} />{group.slides.map((slide, i) => renderSlide(slide, group.offset + i, group.chapterClass))}</section>;
       })}
     </main>
   );
