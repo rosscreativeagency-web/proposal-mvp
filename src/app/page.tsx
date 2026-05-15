@@ -66,29 +66,30 @@ const slides: Slide[] = [
   { id: "47", kind: "cover", title: "Thanks", subtitle: "For watching · SPM Project · Feb - 2026", placeholder: "تصویر پیشنهادی: پایان‌بندی سینمایی" },
 ];
 
-function SlideCard({ slide }: { slide: Slide }) {
+function SlideCard({ slide, idx }: { slide: Slide; idx: number }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: false, margin: "-20% 0px -20% 0px" });
 
   if (slide.kind === "divider") {
-    return <section className="mx-auto my-24 flex min-h-[55vh] w-[min(1100px,92vw)] items-center justify-center rounded-[3rem] bg-[#141313] text-[#f8f1e8]"><div className="text-center"><p className="text-sm tracking-[0.3em] text-[#f4b8c8]">DIVIDER</p><h2 className="mt-6 text-5xl font-bold">{slide.title}</h2><p className="mt-4 text-2xl text-[#f8f1e8]/80">{slide.subtitle}</p></div></section>;
+    return <motion.section initial={{opacity:0,scale:0.95}} whileInView={{opacity:1,scale:1}} className="chapter-break"><p>{slide.id}</p><h2>{slide.title}</h2><span>{slide.subtitle}</span></motion.section>;
   }
 
   return (
-    <motion.section ref={ref} initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className="mx-auto my-10 grid w-[min(1200px,94vw)] gap-6 rounded-[2.6rem] border border-black/10 bg-[#fbf7f1] p-8 shadow-[0_25px_60px_-45px_rgba(40,20,10,0.5)] md:grid-cols-2">
-      <div>
-        <p className="text-xs tracking-[0.25em] text-black/45">SLIDE {slide.id} {slide.kicker ? `— ${slide.kicker}` : ""}</p>
-        <h3 className="mt-3 text-4xl font-bold leading-tight">{slide.title}</h3>
-        {slide.subtitle && <p className="mt-3 text-lg text-black/60">{slide.subtitle}</p>}
-        {slide.body?.map((b) => <p className="mt-4 leading-8 text-black/80" key={b}>{b}</p>)}
-        <div className="mt-6 space-y-3">
-          {slide.bullets?.map((x) => <div key={x} className="flex items-start gap-2"><CircleDot className="mt-1 size-4 text-[#df7092]" /><p>{x}</p></div>)}
+    <motion.section ref={ref} initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className={`chapter-${idx % 4} mx-auto my-14 w-[min(1220px,94vw)]`}>
+      <div className="dynamic-wrap">
+        <div>
+          <p className="text-xs tracking-[0.25em] text-black/45">SLIDE {slide.id} {slide.kicker ? `— ${slide.kicker}` : ""}</p>
+          <h3 className="mt-3 text-4xl font-bold leading-tight">{slide.title}</h3>
+          {slide.subtitle && <p className="mt-3 text-lg text-black/60">{slide.subtitle}</p>}
+          {slide.body?.map((b) => <p className="mt-4 leading-8 text-black/80" key={b}>{b}</p>)}
+          <div className="mt-6 grid gap-3 md:grid-cols-2">
+            {slide.bullets?.map((x) => <motion.div whileHover={{x:-6}} key={x} className="flex items-start gap-2 rounded-xl border border-black/10 bg-white/55 px-3 py-2"><CircleDot className="mt-1 size-4 text-[#df7092]" /><p>{x}</p></motion.div>)}
+          </div>
         </div>
-      </div>
-      <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#f2cbc1] via-[#f8ead6] to-[#dce8e4] p-6">
-        <div className="absolute -left-10 -top-8 h-32 w-40 rounded-[43%_57%_70%_30%/35%_45%_55%_65%] bg-white/50 blur-xl" />
-        <div className="absolute -bottom-12 -right-12 h-44 w-44 rounded-[65%_35%_52%_48%/44%_47%_53%_56%] bg-[#d1a2b3]/50 blur-2xl" />
-        <p className="relative z-10 mt-28 rounded-2xl border border-black/10 bg-white/60 p-4 text-sm">{slide.placeholder}</p>
+        <motion.div whileHover={{ y: -8, rotate: -1 }} className="placeholder-zone">
+          <div className="orb a"/><div className="orb b"/>
+          <p className="relative z-10 mt-20 rounded-2xl border border-black/10 bg-white/70 p-4 text-sm">{slide.placeholder}</p>
+        </motion.div>
       </div>
     </motion.section>
   );
@@ -111,10 +112,10 @@ export default function Home() {
   const sections = useMemo(() => slides, []);
 
   return (
-    <main ref={container} className="relative bg-[#f7f4ef] pb-28">
+    <main ref={container} className="relative bg-[#f7f4ef] pb-28 proposal-root">
       <motion.div style={{ scaleX }} className="fixed right-0 top-0 z-50 h-1 w-full origin-right bg-gradient-to-l from-[#101010] via-[#d46f8e] to-[#f3c8a6]" />
       <section className="relative min-h-screen overflow-hidden px-6 py-20">
-        <motion.div animate={{ y: [0, -20, 0] }} transition={{ duration: 7, repeat: Infinity }} className="absolute left-10 top-20 h-44 w-44 rounded-[57%_43%_39%_61%/36%_49%_51%_64%] bg-[#f3b8c4]/45 blur-xl" />
+        <motion.div animate={{ y: [0, -20, 0], borderRadius:["57%_43%_39%_61%/36%_49%_51%_64%","47%_53%_49%_51%/56%_39%_61%_44%","57%_43%_39%_61%/36%_49%_51%_64%"] }} transition={{ duration: 11, repeat: Infinity }} className="absolute left-10 top-20 h-44 w-44 rounded-[57%_43%_39%_61%/36%_49%_51%_64%] bg-[#f3b8c4]/45 blur-xl" />
         <motion.div animate={{ y: [0, 25, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute bottom-20 right-10 h-60 w-60 rounded-[50%_50%_33%_67%/56%_37%_63%_44%] bg-[#d4e1dc] blur-xl" />
         <div className="relative z-10 mx-auto flex min-h-[70vh] w-[min(1200px,96vw)] flex-col justify-center">
           <p className="text-sm tracking-[0.4em] text-black/50">ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
@@ -123,7 +124,7 @@ export default function Home() {
           <div className="mt-10 flex items-center gap-4"><Sparkles /><span>Scroll to enter chapters</span><ArrowUpRight /></div>
         </div>
       </section>
-      {sections.map((slide) => <SlideCard key={slide.id} slide={slide} />)}
+      {sections.map((slide, idx) => <SlideCard key={slide.id} slide={slide} idx={idx} />)}
     </main>
   );
 }
