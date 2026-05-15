@@ -37,6 +37,7 @@ type Slide = {
   body?: string[];
   bullets?: string[];
   placeholder?: string;
+  placeholderVariant?: "mask-organic" | "editorial-stack" | "diagram-node-map" | "hero-product-zone" | "campaign-mockup" | "icon-cluster";
 };
 
 const slides: Slide[] = [
@@ -104,13 +105,25 @@ function SlideContent({ slide, idx, sectionClass }: { slide: Slide; idx: number;
         {slide.body?.map((b) => <p className="body" key={b}>{b}</p>)}
         {!!slide.bullets?.length && <div className="bullet-grid">{slide.bullets.map((item) => <motion.div whileHover={{ y: -4, x: -3 }} className="bullet" key={item}><CircleDot size={14} />{item}</motion.div>)}</div>}
       </div>
-      <motion.div className="media-block" whileHover={{ rotate: -1, scale: 1.02 }}>
+      <motion.div className={`media-block media-${slide.placeholderVariant ?? getPlaceholderVariant(slide)}`} whileHover={{ rotate: -1, scale: 1.02 }}>
         <div className="media-float" />
         <div className="media-frame"><Icon className="icon" /><p>{slide.placeholder}</p></div>
         <div className="media-mini" />
       </motion.div>
     </motion.section>
   );
+}
+
+
+
+function getPlaceholderVariant(slide: Slide): NonNullable<Slide["placeholderVariant"]> {
+  const id = Number.parseInt(slide.id, 10);
+  if (id <= 10) return "icon-cluster";
+  if (id <= 18) return "mask-organic";
+  if (id <= 24) return "editorial-stack";
+  if (id <= 33) return "diagram-node-map";
+  if (id <= 40) return "campaign-mockup";
+  return "hero-product-zone";
 }
 
 const slideLayoutByRange: Array<{ start: number; end: number; layout: NonNullable<Slide["layout"]> }> = [

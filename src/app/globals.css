@@ -73,3 +73,33 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 @keyframes blobMorphB{50%{transform:translate3d(12px,8px,0) scale(.98);border-radius:38% 62% 42% 58%/54% 37% 63% 46%}}
 @keyframes blobMorphC{50%{transform:translate3d(-9px,-6px,0) scale(1.02);border-radius:55% 45% 63% 37%/41% 60% 40% 59%}}
 @keyframes blobMorphD{50%{transform:translate3d(7px,-12px,0) scale(1.01);border-radius:46% 54% 36% 64%/58% 44% 56% 42%}}
+
+.media-block::before,.media-block::after{content:"";position:absolute;pointer-events:none;z-index:1;transition:transform .35s ease,opacity .35s ease}
+.media-block:hover::before{transform:translate3d(4px,-4px,0) scale(1.02)}
+.media-block:hover::after{transform:translate3d(-3px,3px,0) scale(1.01)}
+.media-block .media-frame::before,.media-block .media-frame::after{content:"";position:absolute;pointer-events:none}
+
+.media-mask-organic{isolation:isolate}
+.media-mask-organic::before{inset:8% 10% auto auto;width:62%;height:68%;background:radial-gradient(circle at 30% 20%,#ffffffdd,transparent 55%),linear-gradient(130deg,#f2b8cb99,#c6e0d899);clip-path:polygon(5% 18%,49% 0,100% 12%,91% 67%,55% 100%,10% 83%);mix-blend-mode:screen}
+.media-mask-organic::after{inset:auto auto 7% 6%;width:54%;height:38%;background:linear-gradient(140deg,#0000000e,#ffffff70);border:1px solid #ffffff8f;border-radius:48% 52% 61% 39% / 37% 44% 56% 63%;backdrop-filter:blur(8px)}
+
+.media-editorial-stack .media-frame{background:linear-gradient(170deg,#ffffffd8,#f7f3ee);box-shadow:inset 0 0 0 1px #00000010}
+.media-editorial-stack .media-frame::before{inset:8% 7%;border:1px solid #0000001a;border-radius:1rem;transform:rotate(-2.6deg)}
+.media-editorial-stack .media-frame::after{inset:14% 12%;border:1px solid #0000001f;border-radius:.8rem;transform:rotate(2deg)}
+.media-editorial-stack::after{inset:20% -12% auto auto;width:46%;height:58%;background:linear-gradient(120deg,#f6d3bf99,#ffffff55);clip-path:polygon(0 0,100% 14%,84% 100%,0 88%)}
+
+.media-diagram-node-map::before{inset:14% 8%;background:radial-gradient(circle at 18% 72%,#d98cad66 0 8%,transparent 9%),radial-gradient(circle at 62% 20%,#7db8ad66 0 7%,transparent 8%),radial-gradient(circle at 80% 68%,#e8b26c66 0 7%,transparent 8%),linear-gradient(135deg,transparent 46%,#ffffff8f 46% 48%,transparent 48%),linear-gradient(28deg,transparent 55%,#ffffff80 55% 57%,transparent 57%);border:1px dashed #00000025;border-radius:1.2rem}
+.media-diagram-node-map::after{inset:auto 10% 8% auto;width:42%;height:26%;background:#ffffff99;border:1px solid #00000017;border-radius:1rem;box-shadow:0 10px 24px -16px #000}
+
+.media-hero-product-zone::before{inset:0;background:linear-gradient(90deg,#ffffff12 0 32%,transparent 32% 68%,#ffffff14 68% 100%),linear-gradient(165deg,#f4cab7a0,#d6e4dfa8);clip-path:polygon(0 0,100% 0,100% 82%,56% 100%,0 88%)}
+.media-hero-product-zone::after{inset:12% auto auto 6%;width:28%;height:72%;background:linear-gradient(#ffffffc7,#ffffff2e);border:1px solid #ffffff9f;border-radius:999px;filter:blur(.2px)}
+.media-hero-product-zone .media-mini{width:152px;height:132px;bottom:-25px}
+
+.media-campaign-mockup .media-frame{background:linear-gradient(160deg,#ffffffcf,#efe6dc)}
+.media-campaign-mockup .media-frame::before{inset:10% auto auto 7%;width:40%;height:52%;background:linear-gradient(130deg,#f0afca88,#ffffff77);border-radius:.8rem;transform:rotate(-5deg)}
+.media-campaign-mockup .media-frame::after{inset:auto 8% 12% auto;width:44%;height:44%;background:linear-gradient(130deg,#b8dbd277,#ffffff66);border-radius:1rem;transform:rotate(6deg)}
+.media-campaign-mockup::after{inset:auto 20% 3% auto;width:22%;height:22%;border-radius:999px;background:#11111110;border:1px solid #ffffff8a}
+
+.media-icon-cluster::before{inset:10% 6%;background:radial-gradient(circle at 14% 30%,#f4bfd477 0 12%,transparent 13%),radial-gradient(circle at 38% 74%,#bbded477 0 10%,transparent 11%),radial-gradient(circle at 78% 33%,#efd39a88 0 13%,transparent 14%),radial-gradient(circle at 82% 77%,#ffffff9a 0 8%,transparent 9%)}
+.media-icon-cluster::after{inset:12% auto auto 52%;width:34%;height:56%;border:1px dashed #00000026;border-radius:1.2rem;transform:rotate(7deg)}
+.media-icon-cluster .media-frame::before{inset:6% 4%;border-radius:1.1rem;border:1px solid #ffffff7f;clip-path:polygon(3% 8%,97% 0,100% 95%,5% 100%)}
