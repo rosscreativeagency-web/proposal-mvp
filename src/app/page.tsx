@@ -1,9 +1,19 @@
 "use client";
 
 import Lenis from "lenis";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
-import { ArrowUpRight, CircleDot, Sparkles } from "lucide-react";
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { useEffect, useMemo } from "react";
+import {
+  ArrowUpRight,
+  CircleDot,
+  Compass,
+  Gem,
+  Layers,
+  Orbit,
+  Sparkles,
+  Target,
+  Workflow,
+} from "lucide-react";
 
 type Slide = {
   id: string;
@@ -66,65 +76,70 @@ const slides: Slide[] = [
   { id: "47", kind: "cover", title: "Thanks", subtitle: "For watching · SPM Project · Feb - 2026", placeholder: "تصویر پیشنهادی: پایان‌بندی سینمایی" },
 ];
 
-function SlideCard({ slide, idx }: { slide: Slide; idx: number }) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: false, margin: "-20% 0px -20% 0px" });
+const icons = [Layers, Workflow, Compass, Orbit, Target, Gem];
 
-  if (slide.kind === "divider") {
-    return <motion.section initial={{opacity:0,scale:0.95}} whileInView={{opacity:1,scale:1}} className="chapter-break"><p>{slide.id}</p><h2>{slide.title}</h2><span>{slide.subtitle}</span></motion.section>;
-  }
-
+function SlideContent({ slide, idx }: { slide: Slide; idx: number }) {
+  const icon = icons[idx % icons.length];
+  const Icon = icon;
+  const mode = idx % 6;
   return (
-    <motion.section ref={ref} initial={{ opacity: 0, y: 50 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }} className={`chapter-${idx % 4} mx-auto my-14 w-[min(1220px,94vw)]`}>
-      <div className="dynamic-wrap">
-        <div>
-          <p className="text-xs tracking-[0.25em] text-black/45">SLIDE {slide.id} {slide.kicker ? `— ${slide.kicker}` : ""}</p>
-          <h3 className="mt-3 text-4xl font-bold leading-tight">{slide.title}</h3>
-          {slide.subtitle && <p className="mt-3 text-lg text-black/60">{slide.subtitle}</p>}
-          {slide.body?.map((b) => <p className="mt-4 leading-8 text-black/80" key={b}>{b}</p>)}
-          <div className="mt-6 grid gap-3 md:grid-cols-2">
-            {slide.bullets?.map((x) => <motion.div whileHover={{x:-6}} key={x} className="flex items-start gap-2 rounded-xl border border-black/10 bg-white/55 px-3 py-2"><CircleDot className="mt-1 size-4 text-[#df7092]" /><p>{x}</p></motion.div>)}
-          </div>
-        </div>
-        <motion.div whileHover={{ y: -8, rotate: -1 }} className="placeholder-zone">
-          <div className="orb a"/><div className="orb b"/>
-          <p className="relative z-10 mt-20 rounded-2xl border border-black/10 bg-white/70 p-4 text-sm">{slide.placeholder}</p>
-        </motion.div>
+    <motion.section className={`scene scene-${mode}`} initial={{ opacity: 0, y: 55 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, margin: "-10%" }}>
+      <div className="scene-text">
+        <p className="eyebrow">SLIDE {slide.id} {slide.kicker ? `· ${slide.kicker}` : ""}</p>
+        <h3>{slide.title}</h3>
+        {slide.subtitle && <p className="subtitle">{slide.subtitle}</p>}
+        {slide.body?.map((b) => <p className="body" key={b}>{b}</p>)}
+        {!!slide.bullets?.length && <div className="bullet-grid">{slide.bullets.map((item) => <motion.div whileHover={{ y: -4, x: -3 }} className="bullet" key={item}><CircleDot size={14} />{item}</motion.div>)}</div>}
       </div>
+      <motion.div className="media-block" whileHover={{ rotate: -1, scale: 1.02 }}>
+        <div className="media-float" />
+        <div className="media-frame"><Icon className="icon" /><p>{slide.placeholder}</p></div>
+        <div className="media-mini" />
+      </motion.div>
     </motion.section>
   );
 }
 
 export default function Home() {
-  const container = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll();
-  const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const progress = useSpring(scrollYProgress, { damping: 28, stiffness: 140 });
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const bgX = useTransform(mx, [-300, 300], [-30, 30]);
+  const bgY = useTransform(my, [-200, 200], [-24, 24]);
+
   useEffect(() => {
-    const lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+    const lenis = new Lenis({ lerp: 0.085, smoothWheel: true });
+    let rafId = 0;
     const raf = (time: number) => {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     };
-    requestAnimationFrame(raf);
-    return () => lenis.destroy();
+    rafId = requestAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
   }, []);
 
   const sections = useMemo(() => slides, []);
 
   return (
-    <main ref={container} className="relative bg-[#f7f4ef] pb-28 proposal-root">
-      <motion.div style={{ scaleX }} className="fixed right-0 top-0 z-50 h-1 w-full origin-right bg-gradient-to-l from-[#101010] via-[#d46f8e] to-[#f3c8a6]" />
-      <section className="relative min-h-screen overflow-hidden px-6 py-20">
-        <motion.div animate={{ y: [0, -20, 0], borderRadius:["57%_43%_39%_61%/36%_49%_51%_64%","47%_53%_49%_51%/56%_39%_61%_44%","57%_43%_39%_61%/36%_49%_51%_64%"] }} transition={{ duration: 11, repeat: Infinity }} className="absolute left-10 top-20 h-44 w-44 rounded-[57%_43%_39%_61%/36%_49%_51%_64%] bg-[#f3b8c4]/45 blur-xl" />
-        <motion.div animate={{ y: [0, 25, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute bottom-20 right-10 h-60 w-60 rounded-[50%_50%_33%_67%/56%_37%_63%_44%] bg-[#d4e1dc] blur-xl" />
-        <div className="relative z-10 mx-auto flex min-h-[70vh] w-[min(1200px,96vw)] flex-col justify-center">
-          <p className="text-sm tracking-[0.4em] text-black/50">ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
-          <h1 className="mt-4 text-6xl font-extrabold leading-tight md:text-8xl">SPM Proposal Experience</h1>
-          <p className="mt-6 max-w-3xl text-xl leading-9 text-black/70">روایتی سینمایی از استراتژی، آگاهی، جایگاه‌سازی، تبلیغات و فروش برای برند SPM با تمرکز بر تجربه انسانی و حرکتی.</p>
-          <div className="mt-10 flex items-center gap-4"><Sparkles /><span>Scroll to enter chapters</span><ArrowUpRight /></div>
-        </div>
+    <main className="proposal-root" onMouseMove={(e) => { mx.set(e.clientX - window.innerWidth / 2); my.set(e.clientY - window.innerHeight / 2); }}>
+      <motion.div className="progress" style={{ scaleX: progress }} />
+      <motion.div className="blob b1" style={{ x: bgX, y: bgY }} />
+      <motion.div className="blob b2" style={{ x: useTransform(bgX, (v) => v * -0.6), y: useTransform(bgY, (v) => v * 0.5) }} />
+      <section className="cover">
+        <p>ROSS CREATIVE AGENCY · INTERACTIVE PROPOSAL</p>
+        <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>SPM Proposal Experience</motion.h1>
+        <h2>روایتی سینمایی، تعاملی و زنده از مسیر Strategy تا Sell</h2>
+        <motion.button whileHover={{ y: -4, scale: 1.03 }} whileTap={{ scale: 0.97 }} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></motion.button>
       </section>
-      {sections.map((slide, idx) => <SlideCard key={slide.id} slide={slide} idx={idx} />)}
+      {sections.map((slide, idx) => {
+        if (slide.kind === "divider") return <motion.section key={slide.id} className="divider" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}><span>{slide.id}</span><h2>{slide.title}</h2><p>{slide.subtitle}</p></motion.section>;
+        if (slide.kind === "cover") return <section key={slide.id} className="cover mini"><p>{slide.kicker}</p><h1>{slide.title}</h1><h2>{slide.subtitle}</h2><div className="chapter-tag">{slide.placeholder}</div></section>;
+        return <SlideContent key={slide.id} slide={slide} idx={idx} />;
+      })}
     </main>
   );
 }
