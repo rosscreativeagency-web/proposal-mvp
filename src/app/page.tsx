@@ -2,7 +2,7 @@
 
 import Lenis from "lenis";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BlobField } from "@/components/BlobField";
 import { ChapterDivider } from "@/components/ChapterDivider";
 import {
@@ -93,6 +93,21 @@ const slides: Slide[] = [
 
 const icons = [Layers, Workflow, Compass, Orbit, Target, Gem];
 
+
+type BudgetMatrixEntry = {
+  stage: "Strategy" | "Awareness" | "Positioning" | "Advertising" | "Sell";
+  kpiTargets: string;
+  channelObjective: string;
+};
+
+const budgetMatrixEntries: BudgetMatrixEntry[] = [
+  { stage: "Strategy", kpiTargets: "View / Engagement", channelObjective: "View" },
+  { stage: "Awareness", kpiTargets: "View / Page View", channelObjective: "Page View" },
+  { stage: "Positioning", kpiTargets: "CTR / View", channelObjective: "CTR" },
+  { stage: "Advertising", kpiTargets: "Impression / View", channelObjective: "Impression" },
+  { stage: "Sell", kpiTargets: "Click / Conversion", channelObjective: "Click · Conversion" },
+];
+
 function SlideContent({ slide, idx, sectionClass }: { slide: Slide; idx: number; sectionClass: string }) {
   const icon = icons[idx % icons.length];
   const Icon = icon;
@@ -176,8 +191,64 @@ function MediaLandscapeSection({ slide, idx }: { slide: Slide; idx: number }) {
 function SellFlowSection({ slide, idx }: { slide: Slide; idx: number }) {
   return <SlideContent slide={slide} idx={idx} sectionClass="section-sell-flow" />;
 }
-function BudgetMatrixSection({ slide, idx }: { slide: Slide; idx: number }) {
-  return <SlideContent slide={slide} idx={idx} sectionClass="section-budget-matrix" />;
+function BudgetMatrixSection({ slide }: { slide: Slide; idx: number }) {
+  const [activeRow, setActiveRow] = useState<BudgetMatrixEntry["stage"] | null>(null);
+  const [activeCol, setActiveCol] = useState<"kpi" | "channel" | null>(null);
+
+  const clearActive = () => {
+    setActiveRow(null);
+    setActiveCol(null);
+  };
+
+  return (
+    <motion.section className="scene section-budget-matrix" initial={{ opacity: 0, y: 55 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, margin: "-10%" }}>
+      <div className="scene-text">
+        <p className="eyebrow">SLIDE {slide.id}</p>
+        <h3>{slide.title}</h3>
+        {!!slide.bullets?.length && (
+          <div className="bullet-grid">
+            {slide.bullets.map((item) => (
+              <motion.div whileHover={{ y: -4, x: -3 }} className="bullet" key={item}>
+                <CircleDot size={14} />
+                {item}
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <motion.div className="budget-matrix" layout onMouseLeave={clearActive} onBlur={clearActive}>
+        <div className="budget-grid budget-header" role="row">
+          <div className="budget-cell">Flow Stage</div>
+          <button type="button" className={`budget-cell budget-head ${activeCol === "kpi" ? "is-active" : ""}`} onMouseEnter={() => setActiveCol("kpi")} onFocus={() => setActiveCol("kpi")}>
+            KPI targets
+          </button>
+          <button type="button" className={`budget-cell budget-head ${activeCol === "channel" ? "is-active" : ""}`} onMouseEnter={() => setActiveCol("channel")} onFocus={() => setActiveCol("channel")}>
+            Channel objective
+          </button>
+        </div>
+
+        {budgetMatrixEntries.map((entry) => {
+          const isActiveRow = activeRow === entry.stage;
+          const isLinkedFlow = activeCol !== null || activeRow !== null;
+          return (
+            <motion.div key={entry.stage} className={`budget-grid budget-row ${isActiveRow ? "is-active" : ""}`} layout onMouseEnter={() => setActiveRow(entry.stage)} onFocus={() => setActiveRow(entry.stage)}>
+              <button type="button" className="budget-cell budget-stage" onMouseEnter={() => setActiveRow(entry.stage)} onFocus={() => setActiveRow(entry.stage)}>
+                {entry.stage}
+              </button>
+              <motion.div layout className={`budget-cell ${activeCol === "kpi" || isActiveRow ? "is-active" : ""}`}>
+                {entry.kpiTargets}
+              </motion.div>
+              <motion.div layout className={`budget-cell ${activeCol === "channel" || isActiveRow ? "is-active" : ""}`}>
+                {entry.channelObjective}
+              </motion.div>
+              {isLinkedFlow && <motion.div layoutId="budget-flow" className="budget-flow-highlight" />}
+            </motion.div>
+          );
+        })}
+      </motion.div>
+    </motion.section>
+  );
 }
 function CinematicClosingSection({ slide, idx }: { slide: Slide; idx: number }) {
   return <SlideContent slide={slide} idx={idx} sectionClass="section-cinematic-closing" />;
