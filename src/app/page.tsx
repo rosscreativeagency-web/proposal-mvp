@@ -18,6 +18,18 @@ import {
 type Slide = {
   id: string;
   kind: "cover" | "divider" | "content";
+  layout?:
+    | "opening-hero"
+    | "editorial-statement"
+    | "service-constellation"
+    | "audience-split"
+    | "strategy-framework"
+    | "awareness-orbit"
+    | "positioning-comparison"
+    | "media-landscape"
+    | "sell-flow"
+    | "budget-matrix"
+    | "cinematic-closing";
   kicker?: string;
   title?: string;
   subtitle?: string;
@@ -78,12 +90,12 @@ const slides: Slide[] = [
 
 const icons = [Layers, Workflow, Compass, Orbit, Target, Gem];
 
-function SlideContent({ slide, idx }: { slide: Slide; idx: number }) {
+function SlideContent({ slide, idx, sectionClass }: { slide: Slide; idx: number; sectionClass: string }) {
   const icon = icons[idx % icons.length];
   const Icon = icon;
   const mode = idx % 6;
   return (
-    <motion.section className={`scene scene-${mode}`} initial={{ opacity: 0, y: 55 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, margin: "-10%" }}>
+    <motion.section className={`scene ${sectionClass} scene-${mode}`} initial={{ opacity: 0, y: 55 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false, margin: "-10%" }}>
       <div className="scene-text">
         <p className="eyebrow">SLIDE {slide.id} {slide.kicker ? `· ${slide.kicker}` : ""}</p>
         <h3>{slide.title}</h3>
@@ -98,6 +110,93 @@ function SlideContent({ slide, idx }: { slide: Slide; idx: number }) {
       </motion.div>
     </motion.section>
   );
+}
+
+const slideLayoutByRange: Array<{ start: number; end: number; layout: NonNullable<Slide["layout"]> }> = [
+  { start: 2, end: 4, layout: "opening-hero" },
+  { start: 5, end: 10, layout: "service-constellation" },
+  { start: 11, end: 11, layout: "editorial-statement" },
+  { start: 14, end: 18, layout: "editorial-statement" },
+  { start: 19, end: 24, layout: "audience-split" },
+  { start: 25, end: 30, layout: "strategy-framework" },
+  { start: 32, end: 33, layout: "awareness-orbit" },
+  { start: 35, end: 37, layout: "positioning-comparison" },
+  { start: 39, end: 40, layout: "media-landscape" },
+  { start: 42, end: 45, layout: "sell-flow" },
+  { start: 46, end: 46, layout: "budget-matrix" },
+  { start: 47, end: 47, layout: "cinematic-closing" },
+];
+
+function getSlideLayout(slide: Slide): NonNullable<Slide["layout"]> {
+  if (slide.layout) return slide.layout;
+  const id = Number.parseInt(slide.id, 10);
+  const found = slideLayoutByRange.find((entry) => id >= entry.start && id <= entry.end);
+  return found?.layout ?? "opening-hero";
+}
+
+function OpeningHeroSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-opening-hero" />;
+}
+function EditorialStatementSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-editorial-statement" />;
+}
+function ServiceConstellationSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-service-constellation" />;
+}
+function AudienceSplitSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-audience-split" />;
+}
+function StrategyFrameworkSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-strategy-framework" />;
+}
+function AwarenessOrbitSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-awareness-orbit" />;
+}
+function PositioningComparisonSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-positioning-comparison" />;
+}
+function MediaLandscapeSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-media-landscape" />;
+}
+function SellFlowSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-sell-flow" />;
+}
+function BudgetMatrixSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-budget-matrix" />;
+}
+function CinematicClosingSection({ slide, idx }: { slide: Slide; idx: number }) {
+  return <SlideContent slide={slide} idx={idx} sectionClass="section-cinematic-closing" />;
+}
+
+function renderSlide(slide: Slide, idx: number) {
+  if (slide.kind === "divider") return <motion.section key={slide.id} className="divider" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}><span>{slide.id}</span><h2>{slide.title}</h2><p>{slide.subtitle}</p></motion.section>;
+  if (slide.kind === "cover") return <section key={slide.id} className="cover mini"><p>{slide.kicker}</p><h1>{slide.title}</h1><h2>{slide.subtitle}</h2><div className="chapter-tag">{slide.placeholder}</div></section>;
+  switch (getSlideLayout(slide)) {
+    case "opening-hero":
+      return <OpeningHeroSection key={slide.id} slide={slide} idx={idx} />;
+    case "editorial-statement":
+      return <EditorialStatementSection key={slide.id} slide={slide} idx={idx} />;
+    case "service-constellation":
+      return <ServiceConstellationSection key={slide.id} slide={slide} idx={idx} />;
+    case "audience-split":
+      return <AudienceSplitSection key={slide.id} slide={slide} idx={idx} />;
+    case "strategy-framework":
+      return <StrategyFrameworkSection key={slide.id} slide={slide} idx={idx} />;
+    case "awareness-orbit":
+      return <AwarenessOrbitSection key={slide.id} slide={slide} idx={idx} />;
+    case "positioning-comparison":
+      return <PositioningComparisonSection key={slide.id} slide={slide} idx={idx} />;
+    case "media-landscape":
+      return <MediaLandscapeSection key={slide.id} slide={slide} idx={idx} />;
+    case "sell-flow":
+      return <SellFlowSection key={slide.id} slide={slide} idx={idx} />;
+    case "budget-matrix":
+      return <BudgetMatrixSection key={slide.id} slide={slide} idx={idx} />;
+    case "cinematic-closing":
+      return <CinematicClosingSection key={slide.id} slide={slide} idx={idx} />;
+    default:
+      return <SlideContent key={slide.id} slide={slide} idx={idx} sectionClass="section-opening-hero" />;
+  }
 }
 
 export default function Home() {
@@ -135,11 +234,7 @@ export default function Home() {
         <h2>روایتی سینمایی، تعاملی و زنده از مسیر Strategy تا Sell</h2>
         <motion.button whileHover={{ y: -4, scale: 1.03 }} whileTap={{ scale: 0.97 }} className="magnetic-btn"><Sparkles size={16} /> Scroll to enter chapters <ArrowUpRight size={16} /></motion.button>
       </section>
-      {sections.map((slide, idx) => {
-        if (slide.kind === "divider") return <motion.section key={slide.id} className="divider" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}><span>{slide.id}</span><h2>{slide.title}</h2><p>{slide.subtitle}</p></motion.section>;
-        if (slide.kind === "cover") return <section key={slide.id} className="cover mini"><p>{slide.kicker}</p><h1>{slide.title}</h1><h2>{slide.subtitle}</h2><div className="chapter-tag">{slide.placeholder}</div></section>;
-        return <SlideContent key={slide.id} slide={slide} idx={idx} />;
-      })}
+      {sections.map((slide, idx) => renderSlide(slide, idx))}
     </main>
   );
 }
